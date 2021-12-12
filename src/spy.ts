@@ -18,9 +18,9 @@ export interface Spy<Args extends any[], Returns> {
   calls: Args[]
   length: number
   results: ResultFn<Returns>[]
-  nextError(error: any): void
-  nextResult(result: Returns): void
-  willCall(cb: (...args: Args) => Returns): void
+  nextError(error: any): this
+  nextResult(result: Returns): this
+  willCall(cb: (...args: Args) => Returns): this
   restore(): void
   reset(): void
   next: ['ok', Returns] | ['error', any] | null
@@ -75,12 +75,15 @@ export function spy<Args extends any[], Returns>(
   fn.reset = reset
   fn.nextError = (error: any) => {
     fn.next = ['error', error]
+    return fn
   }
   fn.nextResult = (result: Returns) => {
     fn.next = ['ok', result]
+    return fn
   }
   fn.willCall = (newCb: (...args: Args) => Returns) => {
     cb = newCb
+    return fn
   }
 
   return fn

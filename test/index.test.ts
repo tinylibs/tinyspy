@@ -109,6 +109,104 @@ test('mocks method', () => {
   expect(method.results).toEqual([ok('A!')])
 })
 
+test('mocks getter', () => {
+  let calls: string[] = []
+  let count = 0
+  let obj = {
+    get apples() {
+      calls.push('called')
+      return ++count
+    },
+  }
+
+  let method = spyOn(obj, { getter: 'apples' })
+
+  expect(obj.apples).toBe(1)
+  expect(calls).toEqual(['called'])
+  expect(method.called).toBe(true)
+  expect(method.callCount).toBe(1)
+  expect(method.calls).toEqual([[]])
+  expect(method.results).toEqual([ok(1)])
+
+  method.willCall(() => '12345')
+
+  expect(obj.apples).toBe('12345')
+  expect(method.callCount).toBe(2)
+  expect(method.calls).toEqual([[], []])
+  expect(method.results).toEqual([ok(1), ok('12345')])
+})
+
+test('mocks setter', () => {
+  let apples = 0
+  let fakedApples = 0
+  let obj = {
+    get apples() {
+      return 0
+    },
+    set apples(count) {
+      apples = count
+    },
+  }
+
+  let method = spyOn(obj, { setter: 'apples' })
+
+  obj.apples = 55
+
+  expect(obj.apples).toBe(0)
+  expect(apples).toBe(55)
+  expect(method.called).toBe(true)
+  expect(method.callCount).toBe(1)
+  expect(method.calls).toEqual([[55]])
+  expect(method.results).toEqual([ok(undefined)])
+
+  method.willCall((count) => {
+    fakedApples = count
+  })
+
+  obj.apples = 199
+
+  expect(obj.apples).toBe(0)
+  expect(apples).toBe(55)
+  expect(fakedApples).toBe(199)
+  expect(method.callCount).toBe(2)
+  expect(method.calls).toEqual([[55], [199]])
+  expect(method.results).toEqual([ok(undefined), ok(undefined)])
+})
+
+test('mocks setter with getter', () => {
+  let apples = 0
+  let fakedApples = 0
+  let obj = {
+    get apples() {
+      return 0
+    },
+    set apples(count) {
+      apples = count
+    },
+  }
+
+  let setter = spyOn(obj, { setter: 'apples' }).willCall((count) => {
+    fakedApples = count
+  })
+  let getter = spyOn(obj, { getter: 'apples' }).willCall(() => fakedApples)
+
+  obj.apples = 55
+
+  expect(obj.apples).toBe(55)
+  expect(apples).toBe(0)
+  expect(fakedApples).toBe(55)
+
+  expect(setter.called).toBe(true)
+  expect(setter.callCount).toBe(1)
+  expect(setter.calls).toEqual([[55]])
+  expect(setter.results).toEqual([ok(undefined)])
+
+  expect(getter.called).toBe(true)
+  expect(getter.callCount).toBe(1)
+  expect(getter.calls).toEqual([[]])
+  expect(getter.results).toEqual([ok(55)])
+})
+
 test('has spy for callback', () => {
   let fn = spy()
   expect(fn.called).toBe(false)
