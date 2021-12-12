@@ -2,7 +2,7 @@ import { test, expect } from 'vitest'
 
 import { spyOn, spy, restoreAll } from '../src/index'
 
-const resultFactory = (type: string) => (result: any) => ({ type, result })
+const resultFactory = (type: string) => (result: any) => [type, result]
 
 const ok = resultFactory('ok')
 const error = resultFactory('error')

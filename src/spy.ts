@@ -1,15 +1,7 @@
 export let spies = new Set<SpyFn<any[], any>>()
 
-type ReturnError = {
-  type: 'error'
-  result: any
-}
-
-type ReturnOk<Results> = {
-  type: 'ok'
-  result: Results
-}
-
+type ReturnError = ['error', any]
+type ReturnOk<Results> = ['ok', Results]
 type ResultFn<Results> = ReturnError | ReturnOk<Results>
 
 export interface Spy<Args extends any[], Returns> {
@@ -23,7 +15,7 @@ export interface Spy<Args extends any[], Returns> {
   willCall(cb: (...args: Args) => Returns): this
   restore(): void
   reset(): void
-  next: ['ok', Returns] | ['error', any] | null
+  next: ResultFn<Returns> | null
 }
 
 export interface SpyFn<Args extends any[], Returns> extends Spy<Args, Returns> {
@@ -39,8 +31,8 @@ export function spy<Args extends any[], Returns>(
     fn.calls.push(args)
     if (fn.next) {
       let [type, result] = fn.next
+      fn.results.push(fn.next)
       fn.next = null
-      fn.results.push({ type, result })
       if (type === 'error') {
         throw result
       }
@@ -60,7 +52,7 @@ export function spy<Args extends any[], Returns>(
         type = 'error'
       }
     }
-    fn.results.push({ type, result })
+    fn.results.push([type, result])
     return result
   }) as SpyFn<Args, Returns>
 
