@@ -6,10 +6,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "jotai-apollo": ["./src/index.ts"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
