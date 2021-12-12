@@ -36,7 +36,7 @@
     }
   },
   "files": [
-    "**"
+    "dist/**"
   ],
   "repository": {
     "type": "git",
