@@ -22,7 +22,7 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   // @ts-ignore
   obj[methodName] = fn
 
-  spies.push(fn)
+  spies.add(fn)
   // @ts-ignore
   return fn
 }

@@ -1,62 +1,86 @@
-// @ts-nocheck
-export let spies: SpyFn<unknown>[] = []
+export let spies = new Set<SpyFn<any[], any>>()
 
-export interface Spy<
-  Fn extends (...args: any[]) => any = (...args: any[]) => any
-> {
+type ReturnError = {
+  type: 'error'
+  result: any
+}
+
+type ReturnOk<Results> = {
+  type: 'ok'
+  result: Results
+}
+
+type ResultFn<Results> = ReturnError | ReturnOk<Results>
+
+export interface Spy<Args extends any[], Returns> {
   called: boolean
   callCount: number
-  calls: Parameters<Fn>[]
+  calls: Args[]
   length: number
-  results: ReturnType<Fn>[]
-  nextError(error: Error): void
-  nextResult(result: ReturnType<Fn>): void
+  results: ResultFn<Returns>[]
+  nextError(error: any): void
+  nextResult(result: Returns): void
+  willCall(cb: (...args: Args) => Returns): void
   restore(): void
-  next: ['ok', ReturnType<Fn>] | ['error', Error] | null
+  reset(): void
+  next: ['ok', Returns] | ['error', any] | null
 }
 
-export interface SpyFn<
-  Fn extends (...args: any[]) => any = (...args: any[]) => any
-> extends Spy {
-  (...args: Parameters<Fn>): ReturnType<Fn>
+export interface SpyFn<Args extends any[], Returns> extends Spy<Args, Returns> {
+  (...args: Args): Returns
 }
 
-export function spy<
-  Fn extends (...args: any[]) => any = (...args: any[]) => any
->(cb?: Fn): SpyFn<Fn> {
-  // @ts-ignore
-  let fn: SpyFn<Fn> = (...args) => {
+export function spy<Args extends any[], Returns>(
+  cb?: (...args: Args) => Returns
+): SpyFn<Args, Returns> {
+  let fn = ((...args: Args) => {
     fn.called = true
     fn.callCount += 1
     fn.calls.push(args)
     if (fn.next) {
-      let [nextType, nextResult] = fn.next
+      let [type, result] = fn.next
       fn.next = null
-      if (nextType === 'error') {
-        fn.results.push(undefined)
-        throw nextResult
-      } else {
-        fn.results.push(nextResult)
-        return nextResult
+      fn.results.push({ type, result })
+      if (type === 'error') {
+        throw result
       }
-    } else {
-      let result: ReturnType<Fn>
-      if (cb) result = cb(...args)
-      fn.results.push(result)
       return result
     }
-  }
+    // it can be thrown (anythig can be thrown),
+    // it can be a return value
+    // it can be undefined, if there is no mocking function
+    let result: any
+    let type: 'ok' | 'error' = 'ok'
+    if (cb) {
+      try {
+        result = cb(...args)
+        type = 'ok'
+      } catch (err: any) {
+        result = err
+        type = 'error'
+      }
+    }
+    fn.results.push({ type, result })
+    return result
+  }) as SpyFn<Args, Returns>
 
   Object.defineProperty(fn, 'length', { value: cb ? cb.length : 0 })
-  fn.called = false
-  fn.callCount = 0
-  fn.results = []
-  fn.calls = []
-  fn.nextError = (error) => {
+  const reset = () => {
+    fn.called = false
+    fn.callCount = 0
+    fn.results = []
+    fn.calls = []
+  }
+  reset()
+  fn.reset = reset
+  fn.nextError = (error: any) => {
     fn.next = ['error', error]
   }
-  fn.nextResult = (result) => {
+  fn.nextResult = (result: Returns) => {
     fn.next = ['ok', result]
+  }
+  fn.willCall = (newCb: (...args: Args) => Returns) => {
+    cb = newCb
   }
 
   return fn

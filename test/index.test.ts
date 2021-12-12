@@ -2,6 +2,11 @@ import { test, expect } from 'vitest'
 
 import { spyOn, spy, restoreAll } from '../src/index'
 
+const resultFactory = (type: string) => (result: any) => ({ type, result })
+
+const ok = resultFactory('ok')
+const error = resultFactory('error')
+
 test('can spy on method', () => {
   let calls: string[] = []
   let obj = {
@@ -23,37 +28,37 @@ test('can spy on method', () => {
   expect(method.called).toBe(true)
   expect(method.callCount).toBe(1)
   expect(method.calls).toEqual([['a']])
-  expect(method.results).toEqual(['a!'])
+  expect(method.results).toEqual([ok('a!')])
 
   expect(obj.method('b')).toBe('b!')
   expect(calls).toEqual(['a', 'b'])
   expect(method.callCount).toBe(2)
   expect(method.calls).toEqual([['a'], ['b']])
-  expect(method.results).toEqual(['a!', 'b!'])
+  expect(method.results).toEqual([ok('a!'), ok('b!')])
 
   method.nextResult('C!')
   expect(obj.method('c')).toBe('C!')
   expect(calls).toEqual(['a', 'b'])
   expect(method.callCount).toBe(3)
   expect(method.calls).toEqual([['a'], ['b'], ['c']])
-  expect(method.results).toEqual(['a!', 'b!', 'C!'])
+  expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!')])
 
-  let error = new Error('test')
-  method.nextError(error)
+  let err = new Error('test')
+  method.nextError(err)
   expect(() => {
     obj.method('d')
-  }).toThrowError(error.message)
+  }).toThrowError(err.message)
   expect(calls).toEqual(['a', 'b'])
   expect(method.callCount).toBe(4)
   expect(method.calls).toEqual([['a'], ['b'], ['c'], ['d']])
-  expect(method.results).toEqual(['a!', 'b!', 'C!', undefined])
+  expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 
   method.restore()
   expect(obj.method('e')).toBe('e!')
   expect(calls).toEqual(['a', 'b', 'e'])
   expect(method.callCount).toBe(4)
   expect(method.calls).toEqual([['a'], ['b'], ['c'], ['d']])
-  expect(method.results).toEqual(['a!', 'b!', 'C!', undefined])
+  expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 })
 
 test('resets all spies', () => {
@@ -101,7 +106,7 @@ test('mocks method', () => {
   expect(method.called).toBe(true)
   expect(method.callCount).toBe(1)
   expect(method.calls).toEqual([['a']])
-  expect(method.results).toEqual(['A!'])
+  expect(method.results).toEqual([ok('A!')])
 })
 
 test('has spy for callback', () => {
@@ -116,7 +121,7 @@ test('has spy for callback', () => {
   expect(fn.called).toBe(true)
   expect(fn.callCount).toBe(1)
   expect(fn.calls).toEqual([['a', 'A']])
-  expect(fn.results).toEqual([undefined])
+  expect(fn.results).toEqual([ok(undefined)])
 
   fn.nextResult('B!')
   expect(fn('b', 'B')).toBe('B!')
@@ -125,17 +130,22 @@ test('has spy for callback', () => {
     ['a', 'A'],
     ['b', 'B'],
   ])
-  expect(fn.results).toEqual([undefined, 'B!'])
+  expect(fn.results).toEqual([ok(undefined), ok('B!')])
 
   expect(fn('c', 'C')).toBe(undefined)
   expect(fn.callCount).toBe(3)
-  expect(fn.results).toEqual([undefined, 'B!', undefined])
+  expect(fn.results).toEqual([ok(undefined), ok('B!'), ok(undefined)])
 
-  let error = new Error('test')
-  fn.nextError(error)
-  expect(fn).toThrowError(error.message)
+  let err = new Error('test')
+  fn.nextError(err)
+  expect(fn).toThrowError(err.message)
   expect(fn.callCount).toBe(4)
-  expect(fn.results).toEqual([undefined, 'B!', undefined, undefined])
+  expect(fn.results).toEqual([
+    ok(undefined),
+    ok('B!'),
+    ok(undefined),
+    error(err),
+  ])
 })
 
 test('supports spy with callback', () => {
@@ -149,11 +159,52 @@ test('supports spy with callback', () => {
   expect(fn.called).toBe(true)
   expect(fn.callCount).toBe(1)
   expect(fn.calls).toEqual([['a']])
-  expect(fn.results).toEqual(['a!'])
+  expect(fn.results).toEqual([ok('a!')])
 
   fn.nextResult('B!')
   expect(fn('b')).toBe('B!')
   expect(fn.callCount).toBe(2)
   expect(fn.calls).toEqual([['a'], ['b']])
-  expect(fn.results).toEqual(['a!', 'B!'])
+  expect(fn.results).toEqual([ok('a!'), ok('B!')])
+})
+
+test('will call reaplied mock', () => {
+  let fn = spy((name: string): string => {
+    return name + '!'
+  })
+
+  fn('A')
+
+  expect(fn.callCount).toBe(1)
+  expect(fn.results).toEqual([ok('A!')])
+
+  fn.willCall(() => {
+    return 'baz'
+  })
+
+  fn('A')
+
+  expect(fn.results).toEqual([ok('A!'), ok('baz')])
+})
+
+test('will resets calls', () => {
+  let fn = spy((name: string): string => {
+    return name + '!'
+  })
+
+  fn('A')
+  fn('B')
+  fn('C')
+
+  expect(fn.called).toBe(true)
+  expect(fn.callCount).toBe(3)
+  expect(fn.calls).toEqual([['A'], ['B'], ['C']])
+  expect(fn.results).toEqual([ok('A!'), ok('B!'), ok('C!')])
+
+  fn.reset()
+
+  expect(fn.called).toBe(false)
+  expect(fn.callCount).toBe(0)
+  expect(fn.calls).toEqual([])
+  expect(fn.results).toEqual([])
 })

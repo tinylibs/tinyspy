@@ -6,7 +6,6 @@
     "build": "tsup --minify",
     "prepare": "husky install",
     "test": "vitest"
-
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -53,6 +52,7 @@
     "@size-limit/time": "^7.0.4",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
+    "prettier": "^2.5.1",
     "size-limit": "^7.0.4",
     "tsup": "^5.11.1",
     "typescript": "^4.5.3",
