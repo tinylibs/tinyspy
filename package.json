@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "build": "tsup --minify",
     "prepare": "husky install"
   },
   "main": "./dist/index.js",
