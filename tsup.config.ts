@@ -9,7 +9,6 @@ export default defineConfig({
   ],
   outDir: 'dist',
   format: ['cjs', 'esm'],
-  external: ['jotai', '@apollo/client', 'wonka'],
   tsconfig: './tsconfig.json',
   target: 'es2017',
   splitting: false,

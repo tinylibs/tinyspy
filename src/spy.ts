@@ -1,4 +1,5 @@
-export let spies = []
+// @ts-nocheck
+export let spies: SpyFn<unknown>[] = []
 
 export interface Spy<
   Fn extends (...args: any[]) => any = (...args: any[]) => any

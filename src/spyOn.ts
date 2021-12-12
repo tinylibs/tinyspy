@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { spy, spies, Spy } from './spy'
 
 type Methods<Obj extends object> = {

@@ -1,7 +1,6 @@
 {
   "name": "tinyspy",
   "version": "0.0.0",
-  "description": "",
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup --minify",
