@@ -1,13 +1,36 @@
 export let spies = []
 
-export function spy(cb) {
-  let fn = (...args) => {
+export interface Spy<
+  Fn extends (...args: any[]) => any = (...args: any[]) => any
+> {
+  called: boolean
+  callCount: number
+  calls: Parameters<Fn>[]
+  length: number
+  results: ReturnType<Fn>[]
+  nextError(error: Error): void
+  nextResult(result: ReturnType<Fn>): void
+  restore(): void
+  next: ['ok', ReturnType<Fn>] | ['error', Error] | null
+}
+
+export interface SpyFn<
+  Fn extends (...args: any[]) => any = (...args: any[]) => any
+> extends Spy {
+  (...args: Parameters<Fn>): ReturnType<Fn>
+}
+
+export function spy<
+  Fn extends (...args: any[]) => any = (...args: any[]) => any
+>(cb?: Fn): SpyFn<Fn> {
+  // @ts-ignore
+  let fn: SpyFn<Fn> = (...args) => {
     fn.called = true
     fn.callCount += 1
     fn.calls.push(args)
     if (fn.next) {
       let [nextType, nextResult] = fn.next
-      fn.next = false
+      fn.next = null
       if (nextType === 'error') {
         fn.results.push(undefined)
         throw nextResult
@@ -16,7 +39,7 @@ export function spy(cb) {
         return nextResult
       }
     } else {
-      let result
+      let result: ReturnType<Fn>
       if (cb) result = cb(...args)
       fn.results.push(result)
       return result

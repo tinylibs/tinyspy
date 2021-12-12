@@ -1,15 +1,27 @@
-import { spy, spies } from './spy'
+import { spy, spies, Spy } from './spy'
 
-export function spyOn(obj, methodName, mock) {
+type Methods<Obj extends object> = {
+  [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? Key : never
+}[keyof Obj]
+
+export function spyOn<Obj extends object, Method extends Methods<Obj>>(
+  obj: Obj,
+  methodName: Method,
+  mock?: Obj[Method]
+  // @ts-ignore
+): Spy<Obj[Method]> {
   let origin = obj[methodName]
   if (!mock) mock = origin
+  // @ts-ignore
   let fn = spy(mock.bind(obj))
   fn.restore = () => {
     obj[methodName] = origin
   }
 
+  // @ts-ignore
   obj[methodName] = fn
 
   spies.push(fn)
+  // @ts-ignore
   return fn
 }
