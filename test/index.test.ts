@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 
-import { spyOn, spy, restoreAll } from '../index.js'
+import { spyOn, spy, restoreAll } from '../src/index'
 
 test('can spy on method', () => {
   let calls: string[] = []
@@ -12,48 +12,48 @@ test('can spy on method', () => {
   }
 
   let method = spyOn(obj, 'method')
-  is(method.called, false)
-  equal(method.callCount, 0)
-  equal(method.calls, [])
-  equal(method.length, 1)
-  equal(method.results, [])
+  expect(method.called).toBe(false)
+  expect(method.callCount).toBe(0)
+  expect(method.calls).toEqual([])
+  expect(method.length).toBe(1)
+  expect(method.results).toEqual([])
 
-  equal(obj.method('a'), 'a!')
-  equal(calls, ['a'])
-  is(method.called, true)
-  equal(method.callCount, 1)
-  equal(method.calls, [['a']])
-  equal(method.results, ['a!'])
+  expect(obj.method('a')).toBe('a!')
+  expect(calls).toEqual(['a'])
+  expect(method.called).toBe(true)
+  expect(method.callCount).toBe(1)
+  expect(method.calls).toEqual([['a']])
+  expect(method.results).toEqual(['a!'])
 
-  equal(obj.method('b'), 'b!')
-  equal(calls, ['a', 'b'])
-  equal(method.callCount, 2)
-  equal(method.calls, [['a'], ['b']])
-  equal(method.results, ['a!', 'b!'])
+  expect(obj.method('b')).toBe('b!')
+  expect(calls).toEqual(['a', 'b'])
+  expect(method.callCount).toBe(2)
+  expect(method.calls).toEqual([['a'], ['b']])
+  expect(method.results).toEqual(['a!', 'b!'])
 
   method.nextResult('C!')
-  equal(obj.method('c'), 'C!')
-  equal(calls, ['a', 'b'])
-  equal(method.callCount, 3)
-  equal(method.calls, [['a'], ['b'], ['c']])
-  equal(method.results, ['a!', 'b!', 'C!'])
+  expect(obj.method('c')).toBe('C!')
+  expect(calls).toEqual(['a', 'b'])
+  expect(method.callCount).toBe(3)
+  expect(method.calls).toEqual([['a'], ['b'], ['c']])
+  expect(method.results).toEqual(['a!', 'b!', 'C!'])
 
   let error = new Error('test')
   method.nextError(error)
-  throws(() => {
+  expect(() => {
     obj.method('d')
-  }, error)
-  equal(calls, ['a', 'b'])
-  equal(method.callCount, 4)
-  equal(method.calls, [['a'], ['b'], ['c'], ['d']])
-  equal(method.results, ['a!', 'b!', 'C!', undefined])
+  }).toThrowError(error.message)
+  expect(calls).toEqual(['a', 'b'])
+  expect(method.callCount).toBe(4)
+  expect(method.calls).toEqual([['a'], ['b'], ['c'], ['d']])
+  expect(method.results).toEqual(['a!', 'b!', 'C!', undefined])
 
   method.restore()
-  equal(obj.method('e'), 'e!')
-  equal(calls, ['a', 'b', 'e'])
-  equal(method.callCount, 4)
-  equal(method.calls, [['a'], ['b'], ['c'], ['d']])
-  equal(method.results, ['a!', 'b!', 'C!', undefined])
+  expect(obj.method('e')).toBe('e!')
+  expect(calls).toEqual(['a', 'b', 'e'])
+  expect(method.callCount).toBe(4)
+  expect(method.calls).toEqual([['a'], ['b'], ['c'], ['d']])
+  expect(method.results).toEqual(['a!', 'b!', 'C!', undefined])
 })
 
 test('resets all spies', () => {
@@ -72,14 +72,15 @@ test('resets all spies', () => {
   let spy2 = spyOn(two, 'method')
 
   one.method('a')
-  equal(spy1.callCount, 1)
-  equal(spy2.callCount, 0)
+
+  expect(spy1.callCount).toBe(1)
+  expect(spy2.callCount).toBe(0)
 
   restoreAll()
   one.method('b')
   two.method('b')
-  equal(spy1.callCount, 1)
-  equal(spy2.callCount, 0)
+  expect(spy1.callCount).toBe(1)
+  expect(spy2.callCount).toBe(0)
 })
 
 test('mocks method', () => {
@@ -95,46 +96,46 @@ test('mocks method', () => {
     return arg.toUpperCase() + '!'
   })
 
-  equal(obj.method('a'), 'A!')
-  equal(calls, [])
-  is(method.called, true)
-  equal(method.callCount, 1)
-  equal(method.calls, [['a']])
-  equal(method.results, ['A!'])
+  expect(obj.method('a')).toBe('A!')
+  expect(calls).toEqual([])
+  expect(method.called).toBe(true)
+  expect(method.callCount).toBe(1)
+  expect(method.calls).toEqual([['a']])
+  expect(method.results).toEqual(['A!'])
 })
 
 test('has spy for callback', () => {
   let fn = spy()
-  is(fn.called, false)
-  equal(fn.callCount, 0)
-  equal(fn.calls, [])
-  equal(fn.length, 0)
-  equal(fn.results, [])
+  expect(fn.called).toBe(false)
+  expect(fn.callCount).toBe(0)
+  expect(fn.calls).toEqual([])
+  expect(fn.length).toBe(0)
+  expect(fn.results).toEqual([])
 
-  is(fn('a', 'A'), undefined)
-  is(fn.called, true)
-  equal(fn.callCount, 1)
-  equal(fn.calls, [['a', 'A']])
-  equal(fn.results, [undefined])
+  expect(fn('a', 'A')).toBe(undefined)
+  expect(fn.called).toBe(true)
+  expect(fn.callCount).toBe(1)
+  expect(fn.calls).toEqual([['a', 'A']])
+  expect(fn.results).toEqual([undefined])
 
   fn.nextResult('B!')
-  equal(fn('b', 'B'), 'B!')
-  equal(fn.callCount, 2)
-  equal(fn.calls, [
+  expect(fn('b', 'B')).toBe('B!')
+  expect(fn.callCount).toBe(2)
+  expect(fn.calls).toEqual([
     ['a', 'A'],
     ['b', 'B'],
   ])
-  equal(fn.results, [undefined, 'B!'])
+  expect(fn.results).toEqual([undefined, 'B!'])
 
-  is(fn('c', 'C'), undefined)
-  equal(fn.callCount, 3)
-  equal(fn.results, [undefined, 'B!', undefined])
+  expect(fn('c', 'C')).toBe(undefined)
+  expect(fn.callCount).toBe(3)
+  expect(fn.results).toEqual([undefined, 'B!', undefined])
 
   let error = new Error('test')
   fn.nextError(error)
-  throws(fn, error)
-  equal(fn.callCount, 4)
-  equal(fn.results, [undefined, 'B!', undefined, undefined])
+  expect(fn).toThrowError(error.message)
+  expect(fn.callCount).toBe(4)
+  expect(fn.results).toEqual([undefined, 'B!', undefined, undefined])
 })
 
 test('supports spy with callback', () => {
@@ -142,17 +143,17 @@ test('supports spy with callback', () => {
     return name + '!'
   })
 
-  equal(fn.length, 1)
+  expect(fn.length).toBe(1)
 
-  equal(fn('a'), 'a!')
-  is(fn.called, true)
-  equal(fn.callCount, 1)
-  equal(fn.calls, [['a']])
-  equal(fn.results, ['a!'])
+  expect(fn('a')).toBe('a!')
+  expect(fn.called).toBe(true)
+  expect(fn.callCount).toBe(1)
+  expect(fn.calls).toEqual([['a']])
+  expect(fn.results).toEqual(['a!'])
 
   fn.nextResult('B!')
-  equal(fn('b'), 'B!')
-  equal(fn.callCount, 2)
-  equal(fn.calls, [['a'], ['b']])
-  equal(fn.results, ['a!', 'B!'])
+  expect(fn('b')).toBe('B!')
+  expect(fn.callCount).toBe(2)
+  expect(fn.calls).toEqual([['a'], ['b']])
+  expect(fn.results).toEqual(['a!', 'B!'])
 })
