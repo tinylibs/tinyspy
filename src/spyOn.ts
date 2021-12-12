@@ -33,18 +33,18 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   methodName: Method,
   mock?: Obj[Method]
 ): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>> {
-  const getMeta = (): { n: string; t: 'value' | 'get' | 'set' } => {
+  const getMeta = (): [string, 'value' | 'get' | 'set'] => {
     if (typeof methodName === 'string') {
-      return { n: methodName, t: 'value' }
+      return [methodName, 'value']
     }
     if ('getter' in methodName) {
-      return { n: methodName.getter, t: 'get' }
+      return [methodName.getter, 'get']
     }
     if ('setter' in methodName) {
-      return { n: methodName.setter, t: 'set' }
+      return [methodName.setter, 'set']
     }
   }
-  const { n: accessName, t: accessType } = getMeta()
+  const [accessName, accessType] = getMeta()
   const descriptor =
     getDescriptor(obj, accessName) ??
     getDescriptor(Object.getPrototypeOf(obj), accessName)!
