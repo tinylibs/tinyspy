@@ -45,14 +45,15 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
     }
   }
   const [accessName, accessType] = getMeta()
-  const descriptor =
-    getDescriptor(obj, accessName) ??
-    getDescriptor(Object.getPrototypeOf(obj), accessName)!
+  const objDescriptor = getDescriptor(obj, accessName)
+  const proto = Object.getPrototypeOf(obj)
+  const protoDescriptor = getDescriptor(proto, accessName)!
+  const descriptor = objDescriptor || protoDescriptor
   const origin = descriptor[accessType]
   if (!mock) mock = origin
   let fn = spy(accessType === 'value' ? mock.bind(obj) : mock)
   const define = (cb) => {
-    Object.defineProperty(obj, accessName, {
+    Object.defineProperty(objDescriptor ? obj : proto, accessName, {
       ...descriptor,
       [accessType]: cb,
     })
