@@ -83,14 +83,6 @@
       "limit": "4500 ms"
     }
   ],
-  "prettier": {
-    "semi": false,
-    "trailingComma": "es5",
-    "singleQuote": true,
-    "bracketSameLine": true,
-    "tabWidth": 2,
-    "printWidth": 80
-  },
   "lint-staged": {
     "*.{js,ts,tsx,md}": [
       "prettier --write"
