@@ -10,6 +10,7 @@ export interface Spy<Args extends any[], Returns> {
   calls: Args[]
   length: number
   results: ResultFn<Returns>[]
+  returns: Returns[]
   nextError(error: any): this
   nextResult(result: Returns): this
   willCall(cb: (...args: Args) => Returns): this
@@ -57,6 +58,11 @@ export function spy<Args extends any[], Returns>(
   }) as SpyFn<Args, Returns>
 
   Object.defineProperty(fn, 'length', { value: cb ? cb.length : 0 })
+  Object.defineProperty(fn, 'returns', {
+    get(this: SpyFn<Args, Returns>) {
+      return this.results.map(([, r]) => r)
+    },
+  })
   const reset = () => {
     fn.called = false
     fn.callCount = 0

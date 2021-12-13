@@ -29,6 +29,7 @@ test('can spy on method', () => {
   expect(method.callCount).toBe(1)
   expect(method.calls).toEqual([['a']])
   expect(method.results).toEqual([ok('a!')])
+  expect(method.returns).toEqual(['a!'])
 
   expect(obj.method('b')).toBe('b!')
   expect(calls).toEqual(['a', 'b'])
