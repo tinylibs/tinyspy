@@ -51,12 +51,14 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   const descriptor = objDescriptor || protoDescriptor
   const origin = descriptor[accessType]
   if (!mock) mock = origin
-  let fn = spy(accessType === 'value' ? mock.bind(obj) : mock)
+  const fn = spy(mock.bind(obj))
   const define = (cb) => {
-    Object.defineProperty(objDescriptor ? obj : proto, accessName, {
-      ...descriptor,
-      [accessType]: cb,
-    })
+    let { value, ...descr } = descriptor
+    if (accessType !== 'value') {
+      delete descr.writable // getter/setter can't have writable attribute at all
+    }
+    descr[accessType] = cb
+    Object.defineProperty(objDescriptor ? obj : proto, accessName, descr)
   }
   const restore = () => define(origin)
   fn.restore = restore
