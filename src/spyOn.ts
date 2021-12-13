@@ -29,7 +29,7 @@ export function spyOn<O extends object, G extends Getters<O>>(
 export function spyOn<O extends object, M extends Methods<O>>(
   obj: O,
   methodName: M,
-  mock?: O[Method]
+  mock?: O[M]
 ): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
 export function spyOn<O extends object, M extends Methods<O>>(
   obj: O,
