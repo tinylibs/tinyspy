@@ -51,36 +51,6 @@
       "path": "dist/index.mjs",
       "import": "{ spy, spyOn, restoreAll }",
       "limit": "4500 ms"
-    },
-    {
-      "path": "dist/spy.js",
-      "import": "{ spy }",
-      "limit": "4500 ms"
-    },
-    {
-      "path": "dist/spy.mjs",
-      "import": "{ spy }",
-      "limit": "4500 ms"
-    },
-    {
-      "path": "dist/spyOn.js",
-      "import": "{ spyOn }",
-      "limit": "4500 ms"
-    },
-    {
-      "path": "dist/spyOn.mjs",
-      "import": "{ spyOn }",
-      "limit": "4500 ms"
-    },
-    {
-      "path": "dist/restoreAll.js",
-      "import": "{ restoreAll }",
-      "limit": "4500 ms"
-    },
-    {
-      "path": "dist/restoreAll.mjs",
-      "import": "{ restoreAll }",
-      "limit": "4500 ms"
     }
   ],
   "lint-staged": {
