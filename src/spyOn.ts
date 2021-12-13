@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { spy, spies, Spy } from './spy'
 import { assert, isType } from './utils'
 
@@ -19,12 +18,12 @@ const getDescriptor = (obj: any, method: string) =>
 export function spyOn<O extends object, S extends Getters<O>>(
   obj: O,
   methodName: { setter: S },
-  mock?: (arg: any) => any
+  mock?: AnyFunction
 ): Spy<[O[S]], any>
 export function spyOn<O extends object, G extends Getters<O>>(
   obj: O,
   methodName: { getter: G },
-  mock?: () => any
+  mock?: AnyFunction
 ): Spy<[], O[G]>
 export function spyOn<O extends object, M extends Methods<O>>(
   obj: O,
@@ -51,12 +50,15 @@ export function spyOn<O extends object, M extends Methods<O>>(
       return [methodName, 'value']
     }
     if ('getter' in methodName) {
-      return [methodName.getter, 'get']
+      return [methodName['getter'], 'get']
     }
     if ('setter' in methodName) {
-      return [methodName.setter, 'set']
+      return [methodName['setter'], 'set']
     }
+
+    throw new Error('spyOn: second argument methodName is not valid')
   }
+
   const [accessName, accessType] = getMeta()
   const objDescriptor = getDescriptor(obj, accessName)
   const proto = Object.getPrototypeOf(obj)
@@ -69,13 +71,13 @@ export function spyOn<O extends object, M extends Methods<O>>(
   const origin = descriptor[accessType]
 
   if (!mock) mock = origin
-  const fn = spy(mock.bind(obj))
-  const define = (cb) => {
+  const fn = spy((mock as InstanceType<any>).bind(obj))
+  const define = (cb: any) => {
     let { value, ...desc } = descriptor
     if (accessType !== 'value') {
       delete desc.writable // getter/setter can't have writable attribute at all
     }
-    desc[accessType] = cb
+    ;(desc as PropertyDescriptor)[accessType] = cb
     Object.defineProperty(objDescriptor ? obj : proto, accessName, desc)
   }
   const restore = () => define(origin)
@@ -84,5 +86,7 @@ export function spyOn<O extends object, M extends Methods<O>>(
   define(fn)
 
   spies.add(fn)
+
+  // @ts-expect-error
   return fn
 }
