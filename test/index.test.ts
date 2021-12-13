@@ -321,3 +321,43 @@ test('will resets calls', () => {
   expect(fn.calls).toEqual([])
   expect(fn.results).toEqual([])
 })
+
+// @ts-ignore
+test('asserts', () => {
+  expect(() => {
+    // @ts-ignore
+    spy(0)
+  }).toThrowError('cannot spy on a non-function value')
+
+  expect(() => {
+    // @ts-ignore
+    spyOn(0)
+  }).toThrowError('cannot spyOn on a primitive value')
+
+  expect(() => {
+    // @ts-ignore
+    spyOn()
+  }).toThrowError('spyOn could not find an object to spy upon')
+
+  expect(() => {
+    const obj = {}
+    Object.defineProperty(obj, 'test', { value: 'test', configurable: false })
+    // @ts-ignore
+    spyOn(obj, 'test')
+  }).toThrowError('test is not declared configurable')
+
+  expect(() => {
+    // @ts-ignore
+    spyOn({}, 'test')
+  }).toThrowError('test does not exist')
+
+  expect(() => {
+    const obj = {}
+    // object does not have a acess type property
+    // @ts-ignore
+
+    Object.defineProperty(obj, 'test', {})
+    // @ts-ignore
+    spyOn(obj, 'test')
+  }).toThrowError('test is not declared configurable')
+})

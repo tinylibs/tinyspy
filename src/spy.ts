@@ -1,3 +1,5 @@
+import { assert } from './utils'
+
 export let spies = new Set<SpyFn<any[], any>>()
 
 type ReturnError = ['error', any]
@@ -26,6 +28,11 @@ export interface SpyFn<Args extends any[], Returns> extends Spy<Args, Returns> {
 export function spy<Args extends any[], Returns>(
   cb?: (...args: Args) => Returns
 ): SpyFn<Args, Returns> {
+  assert(
+    typeof cb === 'function' || typeof cb === 'undefined',
+    'cannot spy on a non-function value'
+  )
+
   const original = cb
   let fn = ((...args: Args) => {
     fn.called = true
