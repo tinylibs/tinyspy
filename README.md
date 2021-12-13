@@ -34,6 +34,34 @@ fn('a')
 console.log(method.returns) // ['a.']
 ```
 
+You can reset calls, returns, called and callCount with `reset` function and restore mock to it's original implementation with `restore` method:
+
+```ts
+const fn = (n: string) => n + '!'
+const spied = spy(fn).willCall((n) => n + '.')
+
+fn('a')
+
+console.log(method.called) // true
+console.log(method.callCount) // 1
+console.log(method.calls) // [['a']]
+console.log(method.returns) // ['a.']
+
+fn.reset()
+
+console.log(method.called) // false
+console.log(method.callCount) // 0
+console.log(method.calls) // []
+console.log(method.returns) // []
+
+fn.restore()
+
+console.log(fn('a')).toBe('a!')
+
+// still spied on!
+console.log(method.callCount) // 1
+```
+
 ### spyOn
 
 > All `spy` methods are available on `spyOn`.
@@ -79,7 +107,7 @@ console.log(spySetter.calls) // [[1]]
 
 console.log(obj.apples) // 1
 console.log(fakedApples) // 1
-console.log(apples) // 0)
+console.log(apples) // 0
 
 console.log(spyGetter.called) // true
 console.log(spyGetter.returns) // [1]
@@ -98,4 +126,21 @@ const spy = spyOn(obj, { getter: 'apples' }, () => apples)
 apples = 1
 
 console.log(obj.apples) // prints 1
+```
+
+You can restore spied function to it's original value with `restore` method:
+
+```ts
+let apples = 0
+const obj = {
+  getApples: () => 13,
+}
+
+const spy = spyOn(obj, 'getApples', () => apples)
+
+console.log(obj.getApples()) // 0
+
+obj.restore()
+
+console.log(obj.getApples()) // 13
 ```
