@@ -6,7 +6,7 @@ type ReturnError = ['error', any]
 type ReturnOk<R> = ['ok', R]
 type ResultFn<R> = ReturnError | ReturnOk<R>
 
-export interface Spy<A extends any[], R> {
+export interface Spy<A extends any[] = any[], R = any> {
   called: boolean
   callCount: number
   calls: A[]
