@@ -148,12 +148,6 @@ obj.restore()
 console.log(obj.getApples()) // 13
 ```
 
-## Authors
-
-- [The Vitest team](https://vitest.dev/) for brainstorming the initial idea.
-- [@ai](https://github.com/ai) for the inspiration of having a minimal library like nanospy.
-
-
 ## Credits
 
 Thanks to:
