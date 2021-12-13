@@ -26,6 +26,7 @@ export interface SpyFn<Args extends any[], Returns> extends Spy<Args, Returns> {
 export function spy<Args extends any[], Returns>(
   cb?: (...args: Args) => Returns
 ): SpyFn<Args, Returns> {
+  const original = cb
   let fn = ((...args: Args) => {
     fn.called = true
     fn.callCount += 1
@@ -83,6 +84,7 @@ export function spy<Args extends any[], Returns>(
     cb = newCb
     return fn
   }
+  fn.restore = () => (cb = original)
 
   return fn
 }

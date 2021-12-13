@@ -62,6 +62,20 @@ test('can spy on method', () => {
   expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 })
 
+test('restore a spyes mock', () => {
+  const fn = (arg: string) => {
+    return arg + '!'
+  }
+
+  const spied = spy(fn).willCall((arg) => arg + '.')
+
+  expect(spied('a')).toBe('a.')
+
+  spied.restore()
+
+  expect(spied('a')).toBe('a!')
+})
+
 test('resets all spies', () => {
   let one = {
     method(arg: string) {
