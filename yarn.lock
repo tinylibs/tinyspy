@@ -1715,10 +1715,10 @@ through@^2.3.8:
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
 
-tinyspy@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/tinyspy/-/tinyspy-0.0.2.tgz#8dedeab83076c14e921202e8b50e4b05b9399fbb"
-  integrity sha512-uKwum56kEir5oEVNT3ELZMDZesXzvRrsff4qDhZx0KxuG3wgRZy1R/4R1cHxjtTJ+QHSaOVgckyeIUvOC29h9Q==
+tinyspy@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/tinyspy/-/tinyspy-0.0.3.tgz#2962417ca9ea34f37ac38635da8ccd00b954731e"
+  integrity sha512-+qeSpuQGBRuCcMSagHNQCT7b3DBYbJtKat3PvNOqkVFx2y0YxDshXtJQ/lbKvQM5N8Ovo7iE6xQskwRmJzwB+Q==
 
 to-regex-range@^5.0.1:
   version "5.0.1"
