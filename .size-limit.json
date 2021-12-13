@@ -1,0 +1,12 @@
+[
+  {
+    "path": "dist/index.js",
+    "import": "{ spy, spyOn, restoreAll }",
+    "limit": "4500 ms"
+  },
+  {
+    "path": "dist/index.mjs",
+    "import": "{ spy, spyOn, restoreAll }",
+    "limit": "4500 ms"
+  }
+]
