@@ -20,7 +20,7 @@ export function spyOn<O extends object, S extends Getters<O>>(
   obj: O,
   methodName: { setter: S },
   mock?: (arg: any) => any
-): Spy<any[], any>
+): Spy<[O[S]], any>
 export function spyOn<O extends object, G extends Getters<O>>(
   obj: O,
   methodName: { getter: G },
@@ -71,12 +71,12 @@ export function spyOn<O extends object, M extends Methods<O>>(
   if (!mock) mock = origin
   const fn = spy(mock.bind(obj))
   const define = (cb) => {
-    let { value, ...descr } = descriptor
+    let { value, ...desc } = descriptor
     if (accessType !== 'value') {
-      delete descr.writable // getter/setter can't have writable attribute at all
+      delete desc.writable // getter/setter can't have writable attribute at all
     }
-    descr[accessType] = cb
-    Object.defineProperty(objDescriptor ? obj : proto, accessName, descr)
+    desc[accessType] = cb
+    Object.defineProperty(objDescriptor ? obj : proto, accessName, desc)
   }
   const restore = () => define(origin)
   fn.restore = restore
