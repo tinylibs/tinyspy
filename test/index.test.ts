@@ -361,3 +361,21 @@ test('asserts', () => {
     spyOn(obj, 'test')
   }).toThrowError('test is not declared configurable')
 })
+
+test('spying on proto', () => {
+  const obj = Object.create(null)
+  Object.setPrototypeOf(obj, {
+    method() {
+      return '123'
+    },
+  })
+  const descriptor = Object.getOwnPropertyDescriptor(obj, 'method')
+
+  expect(descriptor).toBeUndefined()
+
+  const spy = spyOn(obj, 'method')
+
+  obj.method()
+
+  expect(spy.called).toBe(true)
+})

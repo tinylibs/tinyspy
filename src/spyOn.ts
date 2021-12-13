@@ -57,17 +57,15 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   }
   const [accessName, accessType] = getMeta()
   const objDescriptor = getDescriptor(obj, accessName)
-
-  assert(objDescriptor, `${accessName} does not exist`)
-  assert(
-    objDescriptor.configurable,
-    `${accessName} is not declared configurable`
-  )
-
   const proto = Object.getPrototypeOf(obj)
   const protoDescriptor = getDescriptor(proto, accessName)!
   const descriptor = objDescriptor || protoDescriptor
+
+  assert(descriptor, `${accessName} does not exist`)
+  assert(descriptor.configurable, `${accessName} is not declared configurable`)
+
   const origin = descriptor[accessType]
+
   if (!mock) mock = origin
   const fn = spy(mock.bind(obj))
   const define = (cb) => {
