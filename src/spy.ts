@@ -3,38 +3,36 @@ import { assert, isType } from './utils'
 export let spies = new Set<SpyFn<any[], any>>()
 
 type ReturnError = ['error', any]
-type ReturnOk<Results> = ['ok', Results]
-type ResultFn<Results> = ReturnError | ReturnOk<Results>
+type ReturnOk<R> = ['ok', R]
+type ResultFn<R> = ReturnError | ReturnOk<R>
 
-export interface Spy<Args extends any[], Returns> {
+export interface Spy<A extends any[], R> {
   called: boolean
   callCount: number
-  calls: Args[]
+  calls: A[]
   length: number
-  results: ResultFn<Returns>[]
-  returns: Returns[]
+  results: ResultFn<R>[]
+  returns: R[]
   nextError(error: any): this
-  nextResult(result: Returns): this
-  willCall(cb: (...args: Args) => Returns): this
+  nextResult(result: R): this
+  willCall(cb: (...args: A) => R): this
   restore(): void
   reset(): void
-  next: ResultFn<Returns> | null
+  next: ResultFn<R> | null
 }
 
-export interface SpyFn<Args extends any[], Returns> extends Spy<Args, Returns> {
-  (...args: Args): Returns
+export interface SpyFn<A extends any[], R> extends Spy<A, R> {
+  (...args: A): R
 }
 
-export function spy<Args extends any[], Returns>(
-  cb?: (...args: Args) => Returns
-): SpyFn<Args, Returns> {
+export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
   assert(
     isType('function', cb) || isType('undefined', cb),
     'cannot spy on a non-function value'
   )
 
   const original = cb
-  let fn = ((...args: Args) => {
+  let fn = ((...args: A) => {
     fn.called = true
     fn.callCount += 1
     fn.calls.push(args)
@@ -63,11 +61,11 @@ export function spy<Args extends any[], Returns>(
     }
     fn.results.push([type, result])
     return result
-  }) as SpyFn<Args, Returns>
+  }) as SpyFn<A, R>
 
   Object.defineProperty(fn, 'length', { value: cb ? cb.length : 0 })
   Object.defineProperty(fn, 'returns', {
-    get(this: SpyFn<Args, Returns>) {
+    get(this: SpyFn<A, R>) {
       return this.results.map(([, r]) => r)
     },
   })
@@ -83,11 +81,11 @@ export function spy<Args extends any[], Returns>(
     fn.next = ['error', error]
     return fn
   }
-  fn.nextResult = (result: Returns) => {
+  fn.nextResult = (result: R) => {
     fn.next = ['ok', result]
     return fn
   }
-  fn.willCall = (newCb: (...args: Args) => Returns) => {
+  fn.willCall = (newCb: (...args: A) => R) => {
     cb = newCb
     return fn
   }

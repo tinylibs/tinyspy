@@ -3,38 +3,38 @@ import { assert, isType } from './utils'
 
 type AnyFunction = (...args: any[]) => any
 
-type Methods<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? Key : never
-}[keyof Obj]
+type Methods<T> = {
+  [Key in keyof T]-?: T[Key] extends AnyFunction ? Key : never
+}[keyof T]
 
-type Getters<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? never : Key
-}[keyof Obj]
+type Getters<T> = {
+  [Key in keyof T]-?: T[Key] extends AnyFunction ? never : Key
+}[keyof T]
 
-const getDescriptor = (obj: any, method: string) =>
+let getDescriptor = (obj: any, method: string) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
 // setters exist without getter, so we can check only getters
-export function spyOn<O extends object, S extends Getters<O>>(
-  obj: O,
+export function spyOn<T, S extends Getters<T>>(
+  obj: T,
   methodName: { setter: S },
-  mock?: AnyFunction
-): Spy<[O[S]], any>
-export function spyOn<O extends object, G extends Getters<O>>(
-  obj: O,
+  mock?: (arg: T[S]) => void
+): Spy<[T[S]], void>
+export function spyOn<T, G extends Getters<T>>(
+  obj: T,
   methodName: { getter: G },
+  mock?: () => T[G]
+): Spy<[], T[G]>
+export function spyOn<T, M extends Methods<T>>(
+  obj: T,
+  methodName: M,
+  mock?: T[M]
+): T[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
+export function spyOn<T, K extends string & keyof T>(
+  obj: T,
+  methodName: K | { getter: K } | { setter: K },
   mock?: AnyFunction
-): Spy<[], O[G]>
-export function spyOn<O extends object, M extends Methods<O>>(
-  obj: O,
-  methodName: M,
-  mock?: O[M]
-): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
-export function spyOn<O extends object, M extends Methods<O>>(
-  obj: O,
-  methodName: M,
-  mock?: O[M]
-): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never {
+): Spy<any[], any> {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
@@ -45,34 +45,31 @@ export function spyOn<O extends object, M extends Methods<O>>(
     'cannot spyOn on a primitive value'
   )
 
-  const getMeta = (): [string, 'value' | 'get' | 'set'] => {
+  let getMeta = (): [string, 'value' | 'get' | 'set'] => {
     if (typeof methodName === 'string') {
       return [methodName, 'value']
     }
     if ('getter' in methodName) {
-      return [methodName['getter'], 'get']
+      return [methodName.getter, 'get']
     }
-    if ('setter' in methodName) {
-      return [methodName['setter'], 'set']
-    }
-
-    throw new Error('spyOn: second argument methodName is not valid')
+    return [methodName.setter, 'set']
   }
 
-  const [accessName, accessType] = getMeta()
-  const objDescriptor = getDescriptor(obj, accessName)
-  const proto = Object.getPrototypeOf(obj)
-  const protoDescriptor = getDescriptor(proto, accessName)!
-  const descriptor = objDescriptor || protoDescriptor
+  let [accessName, accessType] = getMeta()
+  let objDescriptor = getDescriptor(obj, accessName)
+  let proto = Object.getPrototypeOf(obj)
+  let protoDescriptor = getDescriptor(proto, accessName)!
+  let descriptor = objDescriptor || protoDescriptor
 
   assert(descriptor, `${accessName} does not exist`)
   assert(descriptor.configurable, `${accessName} is not declared configurable`)
 
-  const origin = descriptor[accessType]
+  let origin = descriptor[accessType] as AnyFunction
 
   if (!mock) mock = origin
-  const fn = spy((mock as InstanceType<any>).bind(obj))
-  const define = (cb: any) => {
+
+  let fn = spy(mock.bind(obj))
+  let define = (cb: any) => {
     let { value, ...desc } = descriptor
     if (accessType !== 'value') {
       delete desc.writable // getter/setter can't have writable attribute at all
@@ -80,13 +77,11 @@ export function spyOn<O extends object, M extends Methods<O>>(
     ;(desc as PropertyDescriptor)[accessType] = cb
     Object.defineProperty(objDescriptor ? obj : proto, accessName, desc)
   }
-  const restore = () => define(origin)
+  let restore = () => define(origin)
   fn.restore = restore
 
   define(fn)
 
   spies.add(fn)
-
-  // @ts-expect-error
   return fn
 }
