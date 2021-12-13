@@ -21,7 +21,7 @@ export interface Spy<A extends any[] = any[], R = any> {
   next: ResultFn<R> | null
 }
 
-export interface SpyFn<A extends any[], R> extends Spy<A, R> {
+export interface SpyFn<A extends any[] = any[], R = any> extends Spy<A, R> {
   (...args: A): R
 }
 
