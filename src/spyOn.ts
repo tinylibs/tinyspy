@@ -16,30 +16,26 @@ const getDescriptor = (obj: any, method: string) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
 // setters exist without getter, so we can check only getters
-export function spyOn<Obj extends object, Setters extends Getters<Obj>>(
-  obj: Obj,
-  methodName: { setter: Setters },
+export function spyOn<O extends object, S extends Getters<O>>(
+  obj: O,
+  methodName: { setter: S },
   mock?: (arg: any) => any
 ): Spy<any[], any>
-export function spyOn<Obj extends object, Getter extends Getters<Obj>>(
-  obj: Obj,
-  methodName: { getter: Getter },
+export function spyOn<O extends object, G extends Getters<O>>(
+  obj: O,
+  methodName: { getter: G },
   mock?: () => any
 ): Spy<[], any>
-export function spyOn<Obj extends object, Method extends Methods<Obj>>(
-  obj: Obj,
-  methodName: Method,
-  mock?: Obj[Method]
-): Obj[Method] extends AnyFunction
-  ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
-  : never
-export function spyOn<Obj extends object, Method extends Methods<Obj>>(
-  obj: Obj,
-  methodName: Method,
-  mock?: Obj[Method]
-): Obj[Method] extends AnyFunction
-  ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
-  : never {
+export function spyOn<O extends object, M extends Methods<O>>(
+  obj: O,
+  methodName: M,
+  mock?: O[Method]
+): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
+export function spyOn<O extends object, M extends Methods<O>>(
+  obj: O,
+  methodName: M,
+  mock?: O[M]
+): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
