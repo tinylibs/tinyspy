@@ -143,12 +143,13 @@ test('mocks getter', () => {
   expect(method.calls).toEqual([[]])
   expect(method.results).toEqual([ok(1)])
 
-  method.willCall(() => '12345')
+  const newValue = 34
+  method.willCall(() => newValue)
 
-  expect(obj.apples).toBe('12345')
+  expect(obj.apples).toBe(newValue)
   expect(method.callCount).toBe(2)
   expect(method.calls).toEqual([[], []])
-  expect(method.results).toEqual([ok(1), ok('12345')])
+  expect(method.results).toEqual([ok(1), ok(newValue)])
 })
 
 test('mocks setter', () => {
