@@ -2,38 +2,40 @@
 import { spy, spies, Spy } from './spy'
 import { assert, isType } from './utils'
 
+type AnyFunction = (...args: any[]) => any
+
 type Methods<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? Key : never
+  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? Key : never
 }[keyof Obj]
 
 type Getters<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? never : Key
+  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? never : Key
 }[keyof Obj]
 
 const getDescriptor = (obj: any, method: string) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
-// setters exist withour getter, so we can check only getters
-export function spyOn<Obj extends object, Setters extends Getters<Obj>>(
-  obj: Obj,
-  methodName: { setter: Setters },
+// setters exist without getter, so we can check only getters
+export function spyOn<O extends object, S extends Getters<O>>(
+  obj: O,
+  methodName: { setter: S },
   mock?: (arg: any) => any
 ): Spy<any[], any>
-export function spyOn<Obj extends object, Getter extends Getters<Obj>>(
-  obj: Obj,
-  methodName: { getter: Getter },
+export function spyOn<O extends object, G extends Getters<O>>(
+  obj: O,
+  methodName: { getter: G },
   mock?: () => any
 ): Spy<[], any>
-export function spyOn<Obj extends object, Method extends Methods<Obj>>(
-  obj: Obj,
-  methodName: Method,
-  mock?: Obj[Method]
-): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
-export function spyOn<Obj extends object, Method extends Methods<Obj>>(
-  obj: Obj,
-  methodName: Method,
-  mock?: Obj[Method]
-): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>> {
+export function spyOn<O extends object, M extends Methods<O>>(
+  obj: O,
+  methodName: M,
+  mock?: O[Method]
+): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
+export function spyOn<O extends object, M extends Methods<O>>(
+  obj: O,
+  methodName: M,
+  mock?: O[M]
+): O[M] extends (...args: infer A) => infer R ? Spy<A, R> : never {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
