@@ -2,12 +2,14 @@
 import { spy, spies, Spy } from './spy'
 import { assert, isType } from './utils'
 
+type AnyFunction = (...args: any[]) => any
+
 type Methods<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? Key : never
+  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? Key : never
 }[keyof Obj]
 
 type Getters<Obj extends object> = {
-  [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? never : Key
+  [Key in keyof Obj]-?: Obj[Key] extends AnyFunction ? never : Key
 }[keyof Obj]
 
 const getDescriptor = (obj: any, method: string) =>
@@ -28,14 +30,14 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   obj: Obj,
   methodName: Method,
   mock?: Obj[Method]
-): Obj[Method] extends (...args: Array<any>) => any
+): Obj[Method] extends AnyFunction
   ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
   : never
 export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   obj: Obj,
   methodName: Method,
   mock?: Obj[Method]
-): Obj[Method] extends (...args: Array<any>) => any
+): Obj[Method] extends AnyFunction
   ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
   : never {
   assert(
