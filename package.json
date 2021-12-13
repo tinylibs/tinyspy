@@ -6,6 +6,7 @@
     "dev": "tsup --watch",
     "build": "tsup --minify",
     "prepare": "husky install",
+    "publish": "clean-publish",
     "test": "vitest"
   },
   "main": "./dist/index.js",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@size-limit/preset-small-lib": "^7.0.3",
     "@size-limit/time": "^7.0.4",
+    "clean-publish": "^3.4.4",
     "husky": "^7.0.4",
     "lint-staged": "^12.1.2",
     "prettier": "^2.5.1",
@@ -36,6 +38,12 @@
     "vite": "^2.7.1",
     "vitest": "^0.0.76"
   },
+  "keywords": [
+    "spy",
+    "mock",
+    "typescript",
+    "method"
+  ],
   "engines": {
     "node": ">=14.0.0"
   }
