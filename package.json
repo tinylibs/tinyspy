@@ -15,24 +15,6 @@
       "module": "./dist/index.mjs",
       "import": "./dist/index.mjs",
       "default": "./dist/index.js"
-    },
-    "./spy": {
-      "types": "./dist/spy.d.ts",
-      "module": "./dist/spy.mjs",
-      "import": "./dist/spy.mjs",
-      "default": "./dist/spy.js"
-    },
-    "./spyOn": {
-      "types": "./dist/spyOn.d.ts",
-      "module": "./dist/spyOn.mjs",
-      "import": "./dist/spyOn.mjs",
-      "default": "./dist/spyOn.js"
-    },
-    "./restoreAll": {
-      "types": "./dist/restoreAll.d.ts",
-      "module": "./dist/restoreAll.mjs",
-      "import": "./dist/restoreAll.mjs",
-      "default": "./dist/restoreAll.js"
     }
   },
   "files": [
