@@ -25,7 +25,7 @@ export function spyOn<O extends object, G extends Getters<O>>(
   obj: O,
   methodName: { getter: G },
   mock?: () => any
-): Spy<[], any>
+): Spy<[], O[G]>
 export function spyOn<O extends object, M extends Methods<O>>(
   obj: O,
   methodName: M,
