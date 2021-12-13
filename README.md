@@ -31,7 +31,7 @@ const spied = spy(fn).willCall((n) => n + '.')
 
 fn('a')
 
-expect(method.returns).toEqual(['a.'])
+console.log(method.returns) // ['a.']
 ```
 
 ### spyOn
