@@ -2,6 +2,9 @@
 
 > minimal fork of nanospy, with more features 🕵🏻‍♂️
 
+A `3KB` package for minimal and easy testing with no dependencies. 
+This package was created for having a tiny spy library to use in `vitest`, but it can also be used in `jest` and other test environments. 
+
 ## Usage
 
 > Warning! Does not support mocking ES Modules. You can use it with `vitest`, who does additional transpormations, to mock ESM.
@@ -144,3 +147,17 @@ obj.restore()
 
 console.log(obj.getApples()) // 13
 ```
+
+## Authors
+
+- [The Vitest team](https://vitest.dev/) for brainstorming the initial idea.
+- [@ai](https://github.com/ai) for the inspiration of having a minimal library like nanospy.
+
+
+## Credits
+
+Thanks to:
+
+- [The contributors](https://github.com/Aslemammad/tinyspy/graphs/contributors) for the amazing contributions.
+- [The Vitest team](https://vitest.dev/) for brainstorming the initial idea.
+- [@ai](https://github.com/ai) for the inspiration of having a minimal library like nanospy.
