@@ -42,10 +42,10 @@ export function spy<Args extends any[], Returns>(
       let [type, result] = fn.next
       fn.results.push(fn.next)
       fn.next = null
-      if (type === 'error') {
-        throw result
+      if (type === 'ok') {
+        return result
       }
-      return result
+      throw result
     }
     // it can be thrown (anythig can be thrown),
     // it can be a return value
