@@ -1,4 +1,4 @@
-import { assert } from './utils'
+import { assert, isType } from './utils'
 
 export let spies = new Set<SpyFn<any[], any>>()
 
@@ -29,7 +29,7 @@ export function spy<Args extends any[], Returns>(
   cb?: (...args: Args) => Returns
 ): SpyFn<Args, Returns> {
   assert(
-    typeof cb === 'function' || typeof cb === 'undefined',
+    isType('function', cb) || isType('undefined', cb),
     'cannot spy on a non-function value'
   )
 

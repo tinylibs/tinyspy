@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { spy, spies, Spy } from './spy'
-import { assert } from './utils'
+import { assert, isType } from './utils'
 
 type Methods<Obj extends object> = {
   [Key in keyof Obj]-?: Obj[Key] extends (...args: any[]) => any ? Key : never
@@ -35,12 +35,12 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   mock?: Obj[Method]
 ): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>> {
   assert(
-    typeof obj !== 'undefined',
+    !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
   )
 
   assert(
-    typeof obj === 'object' || typeof obj === 'function',
+    isType('object', obj) || isType('function', obj),
     'cannot spyOn on a primitive value'
   )
 
@@ -62,11 +62,6 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   assert(
     objDescriptor.configurable,
     `${accessName} is not declared configurable`
-  )
-  // TODO: test this
-  assert(
-    objDescriptor[accessType],
-    `property ${accessName} does not have access type ${accessType}`
   )
 
   const proto = Object.getPrototypeOf(obj)
