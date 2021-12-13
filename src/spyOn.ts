@@ -13,7 +13,7 @@ type Getters<Obj extends object> = {
 const getDescriptor = (obj: any, method: string) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
-// setters exist withour getter, so we can check only getters
+// setters exist without getter, so we can check only getters
 export function spyOn<Obj extends object, Setters extends Getters<Obj>>(
   obj: Obj,
   methodName: { setter: Setters },
@@ -28,12 +28,16 @@ export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   obj: Obj,
   methodName: Method,
   mock?: Obj[Method]
-): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
+): Obj[Method] extends (...args: Array<any>) => any
+  ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
+  : never
 export function spyOn<Obj extends object, Method extends Methods<Obj>>(
   obj: Obj,
   methodName: Method,
   mock?: Obj[Method]
-): Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>> {
+): Obj[Method] extends (...args: Array<any>) => any
+  ? Spy<Parameters<Obj[Method]>, ReturnType<Obj[Method]>>
+  : never {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
