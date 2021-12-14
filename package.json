@@ -1,6 +1,6 @@
 {
   "name": "tinyspy",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
