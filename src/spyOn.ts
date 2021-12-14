@@ -64,6 +64,15 @@ export function spyOn<T, K extends string & keyof T>(
   assert(descriptor, `${accessName} does not exist`)
   assert(descriptor.configurable, `${accessName} is not declared configurable`)
 
+  let ssr = false
+
+  // vite ssr support - actual fucntion is stored inside a getter
+  if (accessType === 'value' && !descriptor.value && descriptor.get) {
+    accessType = 'get'
+    ssr = true
+    mock = descriptor.get!()
+  }
+
   let origin = descriptor[accessType] as AnyFunction
 
   if (!mock) mock = origin
@@ -80,7 +89,7 @@ export function spyOn<T, K extends string & keyof T>(
   let restore = () => define(origin)
   fn.restore = restore
 
-  define(fn)
+  define(ssr ? () => fn : fn)
 
   spies.add(fn)
   return fn

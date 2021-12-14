@@ -380,3 +380,23 @@ test('spying on proto', () => {
 
   expect(spy.called).toBe(true)
 })
+
+test('vite ssr support', () => {
+  const method = () => {}
+
+  const obj = {
+    get method() {
+      return method
+    },
+  } as { method: () => {} }
+
+  const spy = spyOn(obj, 'method')
+
+  obj.method
+
+  expect(spy.callCount).toBe(0)
+
+  obj.method()
+
+  expect(spy.callCount).toBe(1)
+})
