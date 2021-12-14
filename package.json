@@ -6,7 +6,7 @@
     "dev": "tsup --watch",
     "build": "tsup --minify",
     "prepare": "husky install",
-    "publish": "clean-publish",
+    "publish": "rm -rf tmp* && clean-publish --without-publish && cd tmp* && npm publish",
     "test": "vitest"
   },
   "main": "./dist/index.js",
