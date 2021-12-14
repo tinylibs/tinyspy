@@ -32,7 +32,7 @@ Simplest usage would be:
 const fn = (n: string) => n + '!'
 const spied = spy(fn)
 
-fn('a')
+spied('a')
 
 console.log(spied.called) // true
 console.log(spied.callCount) // 1
@@ -47,7 +47,7 @@ You can reassign mocked function:
 const fn = (n: string) => n + '!'
 const spied = spy(fn).willCall((n) => n + '.')
 
-fn('a')
+spied('a')
 
 console.log(spied.returns) // ['a.']
 ```
@@ -58,23 +58,23 @@ You can reset calls, returns, called and callCount with `reset` function and res
 const fn = (n: string) => n + '!'
 const spied = spy(fn).willCall((n) => n + '.')
 
-fn('a')
+spied('a')
 
 console.log(spied.called) // true
 console.log(spied.callCount) // 1
 console.log(spied.calls) // [['a']]
 console.log(spied.returns) // ['a.']
 
-fn.reset()
+spied.reset()
 
 console.log(spied.called) // false
 console.log(spied.callCount) // 0
 console.log(spied.calls) // []
 console.log(spied.returns) // []
 
-fn.restore()
+spied.restore()
 
-console.log(fn('a')).toBe('a!')
+console.log(spied('a')).toBe('a!')
 
 // still spied on!
 console.log(method.callCount) // 1
