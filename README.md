@@ -75,9 +75,6 @@ console.log(spied.returns) // []
 spied.restore()
 
 console.log(spied('a')).toBe('a!')
-
-// still spied on!
-console.log(method.callCount) // 1
 ```
 
 ### spyOn
