@@ -382,13 +382,13 @@ test('spying on proto', () => {
 })
 
 test('vite ssr support', () => {
-  const method = () => {}
+  const method = (arg: string) => 5
 
   const obj = {
     get method() {
       return method
     },
-  } as { method: () => {} }
+  } as { method: (arg: string) => 5 }
 
   const spy = spyOn(obj, 'method')
 
@@ -396,7 +396,9 @@ test('vite ssr support', () => {
 
   expect(spy.callCount).toBe(0)
 
-  obj.method()
+  obj.method('hello')
 
   expect(spy.callCount).toBe(1)
+  expect(spy.calls).toEqual([['hello']])
+  expect(spy.returns).toEqual([5])
 })
