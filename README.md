@@ -34,11 +34,11 @@ const spied = spy(fn)
 
 fn('a')
 
-console.log(method.called) // true
-console.log(method.callCount) // 1
-console.log(method.calls) // [['a']]
-console.log(method.results) // [['ok', 'a!']]
-console.log(method.returns) // ['a!']
+console.log(spied.called) // true
+console.log(spied.callCount) // 1
+console.log(spied.calls) // [['a']]
+console.log(spied.results) // [['ok', 'a!']]
+console.log(spied.returns) // ['a!']
 ```
 
 You can reassign mocked function:
@@ -49,7 +49,7 @@ const spied = spy(fn).willCall((n) => n + '.')
 
 fn('a')
 
-console.log(method.returns) // ['a.']
+console.log(spied.returns) // ['a.']
 ```
 
 You can reset calls, returns, called and callCount with `reset` function and restore mock to it's original implementation with `restore` method:
@@ -60,17 +60,17 @@ const spied = spy(fn).willCall((n) => n + '.')
 
 fn('a')
 
-console.log(method.called) // true
-console.log(method.callCount) // 1
-console.log(method.calls) // [['a']]
-console.log(method.returns) // ['a.']
+console.log(spied.called) // true
+console.log(spied.callCount) // 1
+console.log(spied.calls) // [['a']]
+console.log(spied.returns) // ['a.']
 
 fn.reset()
 
-console.log(method.called) // false
-console.log(method.callCount) // 0
-console.log(method.calls) // []
-console.log(method.returns) // []
+console.log(spied.called) // false
+console.log(spied.callCount) // 0
+console.log(spied.calls) // []
+console.log(spied.returns) // []
 
 fn.restore()
 
