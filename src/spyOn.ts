@@ -1,4 +1,4 @@
-import { spy, spies, Spy } from './spy'
+import { spy, spies, SpyImpl } from './spy'
 import { assert, isType } from './utils'
 
 type AnyFunction = (...args: any[]) => any
@@ -19,22 +19,22 @@ export function spyOn<T, S extends Getters<T>>(
   obj: T,
   methodName: { setter: S },
   mock?: (arg: T[S]) => void
-): Spy<[T[S]], void>
+): SpyImpl<[T[S]], void>
 export function spyOn<T, G extends Getters<T>>(
   obj: T,
   methodName: { getter: G },
   mock?: () => T[G]
-): Spy<[], T[G]>
+): SpyImpl<[], T[G]>
 export function spyOn<T, M extends Methods<T>>(
   obj: T,
   methodName: M,
   mock?: T[M]
-): T[M] extends (...args: infer A) => infer R ? Spy<A, R> : never
+): T[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
 export function spyOn<T, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
   mock?: AnyFunction
-): Spy<any[], any> {
+): SpyImpl<any[], any> {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
@@ -77,7 +77,7 @@ export function spyOn<T, K extends string & keyof T>(
 
   if (!mock) mock = origin
 
-  let fn = spy(mock.bind(obj))
+  let fn = spy(mock.bind(obj)) as unknown as SpyImpl
   let define = (cb: any) => {
     let { value, ...desc } = descriptor
     if (accessType !== 'value') {
@@ -88,6 +88,11 @@ export function spyOn<T, K extends string & keyof T>(
   }
   let restore = () => define(origin)
   fn.restore = restore
+  fn.getOriginal = () => origin
+  fn.willCall = (newCb: AnyFunction) => {
+    fn.impl = newCb.bind(obj)
+    return fn
+  }
 
   define(ssr ? () => fn : fn)
 

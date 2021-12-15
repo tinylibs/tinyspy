@@ -62,20 +62,6 @@ test('can spy on method', () => {
   expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 })
 
-test('restore a spyes mock', () => {
-  const fn = (arg: string) => {
-    return arg + '!'
-  }
-
-  const spied = spy(fn).willCall((arg) => arg + '.')
-
-  expect(spied('a')).toBe('a.')
-
-  spied.restore()
-
-  expect(spied('a')).toBe('a!')
-})
-
 test('resets all spies', () => {
   let one = {
     method(arg: string) {
@@ -282,25 +268,6 @@ test('supports spy with callback', () => {
   expect(fn.results).toEqual([ok('a!'), ok('B!')])
 })
 
-test('will call reaplied mock', () => {
-  let fn = spy((name: string): string => {
-    return name + '!'
-  })
-
-  fn('A')
-
-  expect(fn.callCount).toBe(1)
-  expect(fn.results).toEqual([ok('A!')])
-
-  fn.willCall(() => {
-    return 'baz'
-  })
-
-  fn('A')
-
-  expect(fn.results).toEqual([ok('A!'), ok('baz')])
-})
-
 test('will resets calls', () => {
   let fn = spy((name: string): string => {
     return name + '!'
@@ -401,4 +368,32 @@ test('vite ssr support', () => {
   expect(spy.callCount).toBe(1)
   expect(spy.calls).toEqual([['hello']])
   expect(spy.returns).toEqual([5])
+})
+
+test('instance', () => {
+  class Test {
+    props = 0
+    method() {
+      return this.props
+    }
+  }
+
+  const t = new Test()
+
+  const spy = spyOn(t, 'method')
+
+  t.method()
+
+  expect(spy.returns).toEqual([0])
+
+  spy.willCall(function () {
+    this.world = 'hello'
+    this.props = 2
+    return this.world
+  })
+
+  t.method()
+
+  expect(spy.returns).toEqual([0, 'hello'])
+  expect(t.props).toBe(2)
 })

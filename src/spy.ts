@@ -1,6 +1,6 @@
 import { assert, isType } from './utils'
 
-export let spies = new Set<SpyFn<any[], any>>()
+export let spies = new Set<SpyImpl>()
 
 type ReturnError = ['error', any]
 type ReturnOk<R> = ['ok', R]
@@ -15,10 +15,15 @@ export interface Spy<A extends any[] = any[], R = any> {
   returns: R[]
   nextError(error: any): this
   nextResult(result: R): this
+  reset(): void
+  impl: ((...args: A) => R) | undefined
+  next: ResultFn<R> | null
+}
+
+export interface SpyImpl<A extends any[] = any[], R = any> extends Spy<A, R> {
+  getOriginal: () => (...args: A) => R
   willCall(cb: (...args: A) => R): this
   restore(): void
-  reset(): void
-  next: ResultFn<R> | null
 }
 
 export interface SpyFn<A extends any[] = any[], R = any> extends Spy<A, R> {
@@ -31,7 +36,6 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     'cannot spy on a non-function value'
   )
 
-  const original = cb
   let fn = ((...args: A) => {
     fn.called = true
     fn.callCount += 1
@@ -50,9 +54,9 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     // it can be undefined, if there is no mocking function
     let result: any
     let type: 'ok' | 'error' = 'ok'
-    if (cb) {
+    if (fn.impl) {
       try {
-        result = cb(...args)
+        result = fn.impl(...args)
         type = 'ok'
       } catch (err: any) {
         result = err
@@ -77,6 +81,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     fn.calls = []
   }
   reset()
+  fn.impl = cb
   fn.reset = reset
   fn.nextError = (error: any) => {
     fn.next = ['error', error]
@@ -86,11 +91,6 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     fn.next = ['ok', result]
     return fn
   }
-  fn.willCall = (newCb: (...args: A) => R) => {
-    cb = newCb
-    return fn
-  }
-  fn.restore = () => (cb = original)
 
   return fn
 }

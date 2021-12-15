@@ -5,8 +5,6 @@
 A `4KB` package for minimal and easy testing with no dependencies.
 This package was created for having a tiny spy library to use in `vitest`, but it can also be used in `jest` and other test environments.
 
----
-
 ## Installing
 
 ```
@@ -44,8 +42,10 @@ console.log(method.returns) // ['a!']
 You can reassign mocked function:
 
 ```ts
-const fn = (n: string) => n + '!'
-const spied = spy(fn).willCall((n) => n + '.')
+const obj = {
+  fn: (n: string) => n + '!',
+}
+const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
 
 fn('a')
 
@@ -55,8 +55,10 @@ console.log(method.returns) // ['a.']
 You can reset calls, returns, called and callCount with `reset` function and restore mock to it's original implementation with `restore` method:
 
 ```ts
-const fn = (n: string) => n + '!'
-const spied = spy(fn).willCall((n) => n + '.')
+const obj = {
+  fn: (n: string) => n + '!',
+}
+const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
 
 fn('a')
 
