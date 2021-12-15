@@ -21,7 +21,7 @@ export interface Spy<A extends any[] = any[], R = any> {
 }
 
 export interface SpyImpl<A extends any[] = any[], R = any> extends Spy<A, R> {
-  getOriginal: () => (...args: A) => R
+  getOriginal(): (...args: A) => R
   willCall(cb: (...args: A) => R): this
   restore(): void
 }
@@ -63,7 +63,11 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
         type = 'error'
       }
     }
-    fn.results.push([type, result])
+    let resultTuple: ResultFn<R> = [type, result]
+    if (result && isType('object', result) && isType('function', result.then)) {
+      result.then((r: any) => (resultTuple[1] = r))
+    }
+    fn.results.push(resultTuple)
     return result
   }) as SpyFn<A, R>
 

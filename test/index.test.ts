@@ -397,3 +397,23 @@ test('instance', () => {
   expect(spy.returns).toEqual([0, 'hello'])
   expect(t.props).toBe(2)
 })
+
+test('async', async () => {
+  let counter = 0
+  const obj = {
+    async method() {
+      return ++counter
+    },
+  }
+
+  const spy = spyOn(obj, 'method')
+
+  const promise = obj.method()
+
+  expect(spy.called).toBe(true)
+  expect(spy.results[0][1]).toBeInstanceOf(Promise)
+
+  await promise
+
+  expect(spy.results).toEqual([['ok', 1]])
+})

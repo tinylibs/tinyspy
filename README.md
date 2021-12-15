@@ -39,26 +39,10 @@ console.log(spied.results) // [['ok', 'a!']]
 console.log(spied.returns) // ['a!']
 ```
 
-You can reassign mocked function:
+You can reset calls, returns, called and callCount with `reset` function:
 
 ```ts
-const obj = {
-  fn: (n: string) => n + '!',
-}
-const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
-
-spied('a')
-
-console.log(spied.returns) // ['a.']
-```
-
-You can reset calls, returns, called and callCount with `reset` function and restore mock to it's original implementation with `restore` method:
-
-```ts
-const obj = {
-  fn: (n: string) => n + '!',
-}
-const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
+const spied = spy((n: string) => n + '!')
 
 spied('a')
 
@@ -73,10 +57,21 @@ console.log(spied.called) // false
 console.log(spied.callCount) // 0
 console.log(spied.calls) // []
 console.log(spied.returns) // []
+```
 
-spied.restore()
+If you have async implementation, you need to `await` the method to get awaited results (if you don't, you will get a `Promise` inside `results`):
 
-console.log(spied('a')).toBe('a!')
+```ts
+const spied = spy(async (n: string) => n + '!')
+
+const promise = spied('a')
+
+console.log(spied.called) // true
+console.log(spiet.returns) // [Promise]
+
+await promise
+
+console.log(spiet.returns) // ['a!']
 ```
 
 ### spyOn
@@ -128,6 +123,25 @@ console.log(apples) // 0
 
 console.log(spyGetter.called) // true
 console.log(spyGetter.returns) // [1]
+```
+
+You can reassign mocked function and restore mock to it's original implementation with `restore` method:
+
+```ts
+const obj = {
+  fn: (n: string) => n + '!',
+}
+const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
+
+obj.fn('a')
+
+console.log(spied.returns) // ['a.']
+
+spied.restore()
+
+obj.fn('a')
+
+console.log(spied.returns) // ['a!']
 ```
 
 You can even make an attribute into a dynamic getter!
