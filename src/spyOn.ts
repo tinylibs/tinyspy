@@ -88,7 +88,7 @@ export function spyOn<T, K extends string & keyof T>(
   }
   let restore = () => define(origin)
   fn.restore = restore
-  fn.getOriginal = () => origin
+  fn.getOriginal = () => (ssr ? origin() : origin)
   fn.willCall = (newCb: AnyFunction) => {
     fn.impl = newCb.bind(obj)
     return fn
