@@ -58,7 +58,7 @@ export function spyOn<T, K extends string & keyof T>(
   let [accessName, accessType] = getMeta()
   let objDescriptor = getDescriptor(obj, accessName)
   let proto = Object.getPrototypeOf(obj)
-  let protoDescriptor = getDescriptor(proto, accessName)!
+  let protoDescriptor = proto && getDescriptor(proto, accessName)
   let descriptor = objDescriptor || protoDescriptor
 
   assert(descriptor, `${accessName} does not exist`)

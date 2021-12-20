@@ -417,3 +417,16 @@ test('async', async () => {
 
   expect(spy.results).toEqual([['ok', 1]])
 })
+
+test('proto null', () => {
+  const obj = Object.create(null)
+
+  obj.method = () => true
+
+  const spy = spyOn(obj, 'method')
+
+  obj.method()
+
+  expect(spy.called).toBe(true)
+  expect(spy.returns[0]).toBe(true)
+})
