@@ -430,3 +430,23 @@ test('proto null', () => {
   expect(spy.called).toBe(true)
   expect(spy.returns[0]).toBe(true)
 })
+
+test('retains name', () => {
+  function count() {
+    return 1
+  }
+
+  expect(spy(count).name).toBe('count')
+
+  expect(spy(count.bind({})).name).toBe('bound count')
+
+  expect(spy(() => true).name).toBe('spy')
+
+  const obj = {
+    count,
+  }
+
+  const spied = spyOn(obj, 'count')
+
+  expect(obj.count.name).toBe('count')
+})

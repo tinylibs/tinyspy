@@ -78,6 +78,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
       return this.results.map(([, r]) => r)
     },
   })
+  Object.defineProperty(fn, 'name', { value: cb ? cb.name || 'spy' : 'spy' })
   const reset = () => {
     fn.called = false
     fn.callCount = 0

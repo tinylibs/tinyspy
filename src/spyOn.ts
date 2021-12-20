@@ -1,14 +1,14 @@
 import { spy, spies, SpyImpl } from './spy'
 import { assert, isType } from './utils'
 
-type AnyFunction = (...args: any[]) => any
+type Procedure = (...args: any[]) => any
 
 type Methods<T> = {
-  [Key in keyof T]-?: T[Key] extends AnyFunction ? Key : never
+  [K in keyof T]-?: T[K] extends Procedure ? K : never
 }[keyof T]
 
 type Getters<T> = {
-  [Key in keyof T]-?: T[Key] extends AnyFunction ? never : Key
+  [K in keyof T]-?: T[K] extends Procedure ? never : K
 }[keyof T]
 
 let getDescriptor = (obj: any, method: string) =>
@@ -33,7 +33,7 @@ export function spyOn<T, M extends Methods<T>>(
 export function spyOn<T, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
-  mock?: AnyFunction
+  mock?: Procedure
 ): SpyImpl<any[], any> {
   assert(
     !isType('undefined', obj),
@@ -73,7 +73,7 @@ export function spyOn<T, K extends string & keyof T>(
     mock = descriptor.get!()
   }
 
-  let origin = descriptor[accessType] as AnyFunction
+  let origin = descriptor[accessType] as Procedure
 
   if (!mock) mock = origin
 
@@ -89,10 +89,17 @@ export function spyOn<T, K extends string & keyof T>(
   let restore = () => define(origin)
   fn.restore = restore
   fn.getOriginal = () => (ssr ? origin() : origin)
-  fn.willCall = (newCb: AnyFunction) => {
+  fn.willCall = (newCb: Procedure) => {
     fn.impl = newCb.bind(obj)
     return fn
   }
+
+  let name = mock.name || 'spy'
+  let binded = 'bound '
+  if (mock.name.startsWith(binded)) {
+    name = mock.name.slice(binded.length)
+  }
+  Object.defineProperty(fn, 'name', { value: name })
 
   define(ssr ? () => fn : fn)
 
