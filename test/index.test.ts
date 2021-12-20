@@ -370,6 +370,25 @@ test('vite ssr support', () => {
   expect(spy.returns).toEqual([5])
 })
 
+test('obj getter', () => {
+  const obj = {
+    num: 3,
+    get count() {
+      return this.num + 1
+    },
+  }
+
+  const spy = spyOn(obj, { getter: 'count' })
+
+  expect(obj.count).toBe(4)
+
+  obj.num = 55
+
+  expect(obj.count).toBe(56)
+
+  expect(spy.callCount).toBe(2)
+})
+
 test('instance', () => {
   class Test {
     props = 0
@@ -468,4 +487,45 @@ test('cb with context', () => {
 
   expect(s.array).toEqual([])
   expect(instances[1]).toEqual({ array: [] })
+})
+
+test('cb method with context', () => {
+  const instances: any[] = []
+  function Names() {
+    instances.push(this)
+    this.array = []
+  }
+  const obj = {
+    Names,
+  }
+
+  spyOn(obj, 'Names')
+
+  const s = new obj.Names()
+
+  expect(s.array).toEqual([])
+  expect(instances[0]).toEqual({ array: [] })
+})
+
+test('method sets properties on obj', () => {
+  const instances: any[] = []
+  function Names() {
+    instances.push(this)
+    this.array = [1]
+  }
+  const obj = {
+    array: [],
+    Names,
+  }
+
+  spyOn(obj, 'Names')
+
+  const s = new obj.Names()
+
+  expect(s.array).toEqual([1])
+  expect(instances[0]).toEqual({ array: [1] })
+
+  obj.Names()
+
+  expect(obj.array).toEqual([1])
 })

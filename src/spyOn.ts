@@ -77,7 +77,7 @@ export function spyOn<T, K extends string & keyof T>(
 
   if (!mock) mock = origin
 
-  let fn = spy(mock.bind(obj)) as unknown as SpyImpl
+  let fn = spy(mock) as unknown as SpyImpl
   let define = (cb: any) => {
     let { value, ...desc } = descriptor
     if (accessType !== 'value') {
@@ -90,14 +90,14 @@ export function spyOn<T, K extends string & keyof T>(
   fn.restore = restore
   fn.getOriginal = () => (ssr ? origin() : origin)
   fn.willCall = (newCb: Procedure) => {
-    fn.impl = newCb.bind(obj)
+    fn.impl = newCb
     return fn
   }
 
   let name = mock.name || 'spy'
-  let binded = 'bound '
-  if (mock.name.startsWith(binded)) {
-    name = mock.name.slice(binded.length)
+  let bound = 'bound '
+  if (mock.name.startsWith(bound)) {
+    name = mock.name.slice(bound.length)
   }
   Object.defineProperty(fn, 'name', { value: name })
 
