@@ -446,7 +446,26 @@ test('retains name', () => {
     count,
   }
 
-  const spied = spyOn(obj, 'count')
+  spyOn(obj, 'count')
 
   expect(obj.count.name).toBe('count')
+})
+
+test('cb with context', () => {
+  const instances: any[] = []
+  function Names() {
+    instances.push(this)
+    this.array = []
+  }
+
+  const n = new Names()
+
+  expect(n.array).toEqual([])
+
+  const Spied = spy(Names)
+
+  const s = new Spied()
+
+  expect(s.array).toEqual([])
+  expect(instances[1]).toEqual({ array: [] })
 })

@@ -36,9 +36,9 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     'cannot spy on a non-function value'
   )
 
-  let fn = ((...args: A) => {
+  let fn = function (this: any, ...args: A) {
     fn.called = true
-    fn.callCount += 1
+    fn.callCount++
     fn.calls.push(args)
     if (fn.next) {
       let [type, result] = fn.next
@@ -56,7 +56,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     let type: 'ok' | 'error' = 'ok'
     if (fn.impl) {
       try {
-        result = fn.impl(...args)
+        result = fn.impl.apply(this, args)
         type = 'ok'
       } catch (err: any) {
         result = err
@@ -69,7 +69,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     }
     fn.results.push(resultTuple)
     return result
-  }) as SpyFn<A, R>
+  } as SpyFn<A, R>
 
   Object.defineProperty(fn, 'length', { value: cb ? cb.length : 0 })
   Object.defineProperty(fn, '__isSpy', { value: true })
