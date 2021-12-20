@@ -29,7 +29,7 @@
     "@size-limit/time": "^7.0.4",
     "clean-publish": "^3.4.4",
     "husky": "^7.0.4",
-    "lint-staged": "^12.1.2",
+    "nano-staged": "^0.5.0",
     "prettier": "^2.5.1",
     "size-limit": "^7.0.4",
     "tinyspy": "^0.0.3",
