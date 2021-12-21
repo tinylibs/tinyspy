@@ -61,30 +61,49 @@ export function spyOn<T, K extends string & keyof T>(
   let protoDescriptor = proto && getDescriptor(proto, accessName)
   let descriptor = objDescriptor || protoDescriptor
 
-  assert(descriptor, `${accessName} does not exist`)
-  assert(descriptor.configurable, `${accessName} is not declared configurable`)
+  assert(descriptor || accessName in obj, `${accessName} does not exist`)
 
   let ssr = false
 
   // vite ssr support - actual fucntion is stored inside a getter
-  if (accessType === 'value' && !descriptor.value && descriptor.get) {
+  if (
+    accessType === 'value' &&
+    descriptor &&
+    !descriptor.value &&
+    descriptor.get
+  ) {
     accessType = 'get'
     ssr = true
     mock = descriptor.get!()
   }
 
-  let origin = descriptor[accessType] as Procedure
+  let origin: Procedure
+
+  if (descriptor) {
+    origin = descriptor[accessType]
+  } else if (accessType !== 'value') {
+    origin = () => obj[accessName as keyof T]
+  } else {
+    origin = obj[accessName as keyof T] as unknown as Procedure
+  }
 
   if (!mock) mock = origin
 
   let fn = spy(mock) as unknown as SpyImpl
   let define = (cb: any) => {
-    let { value, ...desc } = descriptor
+    let { value, ...desc } = descriptor || {
+      configurable: true,
+      writable: true,
+    }
     if (accessType !== 'value') {
       delete desc.writable // getter/setter can't have writable attribute at all
     }
     ;(desc as PropertyDescriptor)[accessType] = cb
-    Object.defineProperty(objDescriptor ? obj : proto, accessName, desc)
+    Object.defineProperty(
+      objDescriptor || !descriptor ? obj : proto,
+      accessName,
+      desc
+    )
   }
   let restore = () => define(origin)
   fn.restore = restore
@@ -93,13 +112,6 @@ export function spyOn<T, K extends string & keyof T>(
     fn.impl = newCb
     return fn
   }
-
-  let name = mock.name || 'spy'
-  let bound = 'bound '
-  if (mock.name.startsWith(bound)) {
-    name = mock.name.slice(bound.length)
-  }
-  Object.defineProperty(fn, 'name', { value: name })
 
   define(ssr ? () => fn : fn)
 

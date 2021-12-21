@@ -2,6 +2,8 @@ import { test, expect } from 'vitest'
 
 import { spyOn, spy, restoreAll } from '../src/index'
 
+import { Window } from 'happy-dom'
+
 const resultFactory = (type: string) => (result: any) => [type, result]
 
 const ok = resultFactory('ok')
@@ -308,26 +310,9 @@ test('asserts', () => {
   }).toThrowError('spyOn could not find an object to spy upon')
 
   expect(() => {
-    const obj = {}
-    Object.defineProperty(obj, 'test', { value: 'test', configurable: false })
-    // @ts-ignore
-    spyOn(obj, 'test')
-  }).toThrowError('test is not declared configurable')
-
-  expect(() => {
     // @ts-ignore
     spyOn({}, 'test')
   }).toThrowError('test does not exist')
-
-  expect(() => {
-    const obj = {}
-    // object does not have a acess type property
-    // @ts-ignore
-
-    Object.defineProperty(obj, 'test', {})
-    // @ts-ignore
-    spyOn(obj, 'test')
-  }).toThrowError('test is not declared configurable')
 })
 
 test('spying on proto', () => {
@@ -528,4 +513,36 @@ test('method sets properties on obj', () => {
   obj.Names()
 
   expect(obj.array).toEqual([1])
+})
+
+test('no descriptor', () => {
+  const w = new Window()
+
+  const head = w.document.head
+  const descriptorObj = Object.getOwnPropertyDescriptor(head, 'appendChild')
+  const descriptorProto = Object.getOwnPropertyDescriptor(
+    Object.getPrototypeOf(head),
+    'appendChild'
+  )
+
+  expect(descriptorObj).toBeUndefined()
+  expect(descriptorProto).toBeUndefined()
+  expect(head.appendChild).toBeTruthy()
+
+  const spy = spyOn(head, 'appendChild')
+
+  const div = w.document.createElement('div')
+
+  head.appendChild(div)
+
+  expect(spy.called).toBe(true)
+  expect(spy.calls[0][0]).toBe(div)
+
+  const getter = spyOn(head, { getter: 'childElementCount' }, () => 42)
+
+  const count = head.childElementCount
+
+  expect(count).toBe(42)
+  expect(getter.called).toBe(true)
+  expect(getter.returns[0]).toBe(42)
 })

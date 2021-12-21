@@ -28,6 +28,7 @@
     "@size-limit/preset-small-lib": "^7.0.3",
     "@size-limit/time": "^7.0.4",
     "clean-publish": "^3.4.4",
+    "happy-dom": "^2.25.1",
     "husky": "^7.0.4",
     "nano-staged": "^0.5.0",
     "prettier": "^2.5.1",
