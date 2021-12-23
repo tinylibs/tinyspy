@@ -6,6 +6,7 @@ export default defineConfig({
   format: ['esm'],
   tsconfig: './tsconfig.json',
   target: 'node14',
+  minify: false,
   clean: true,
   dts: true,
 })
