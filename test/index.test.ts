@@ -417,9 +417,10 @@ test('async', async () => {
   expect(spy.called).toBe(true)
   expect(spy.results[0][1]).toBeInstanceOf(Promise)
 
-  await promise
+  const count = await promise
 
   expect(spy.results).toEqual([['ok', 1]])
+  expect(count).toBe(1)
 })
 
 test('async error', async () => {
