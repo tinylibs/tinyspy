@@ -5,7 +5,7 @@ export default defineConfig({
   outDir: 'dist',
   format: ['esm'],
   tsconfig: './tsconfig.json',
-  target: 'es2017',
+  target: 'node14',
   clean: true,
   dts: true,
 })
