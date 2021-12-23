@@ -422,6 +422,32 @@ test('async', async () => {
   expect(spy.results).toEqual([['ok', 1]])
 })
 
+test('async error', async () => {
+  const obj = {
+    async method() {
+      throw new Error('async error')
+    },
+  }
+
+  const spy = spyOn(obj, 'method')
+  const promise = obj.method()
+
+  expect(spy.called).toBe(true)
+  expect(spy.results[0][1]).toBeInstanceOf(Promise)
+
+  let caughtError = null
+  try {
+    await promise
+  } catch (e) {
+    caughtError = e
+  }
+
+  expect(spy.results[0][0]).toEqual('error')
+  expect(spy.results[0][1].message).toEqual('async error')
+  expect(caughtError).toBeInstanceOf(Error)
+  expect(caughtError.message).toEqual('async error')
+})
+
 test('proto null', () => {
   const obj = Object.create(null)
 
