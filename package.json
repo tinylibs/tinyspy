@@ -36,8 +36,8 @@
     "tinyspy": "*",
     "tsup": "^5.11.7",
     "typescript": "^4.5.4",
-    "vite": "^2.7.6",
-    "vitest": "^0.0.108"
+    "vite": "^2.7.10",
+    "vitest": "^0.0.131"
   },
   "keywords": [
     "spy",
