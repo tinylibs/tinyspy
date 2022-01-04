@@ -4,32 +4,43 @@ import { assert, isType } from './utils'
 type Procedure = (...args: any[]) => any
 
 type Methods<T> = {
-  [K in keyof T]-?: T[K] extends Procedure ? K : never
-}[keyof T]
-
+  [K in keyof T]: T[K] extends Procedure ? K : never
+}[keyof T] &
+  string
 type Getters<T> = {
-  [K in keyof T]-?: T[K] extends Procedure ? never : K
-}[keyof T]
+  [K in keyof T]: T[K] extends Procedure ? never : K
+}[keyof T] &
+  string
+type Classes<T> = {
+  [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never
+}[keyof T] &
+  string
 
 let getDescriptor = (obj: any, method: string) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
 // setters exist without getter, so we can check only getters
-export function spyOn<T, S extends Getters<T>>(
+export function spyOn<T, S extends Getters<Required<T>>>(
   obj: T,
   methodName: { setter: S },
   mock?: (arg: T[S]) => void
 ): SpyImpl<[T[S]], void>
-export function spyOn<T, G extends Getters<T>>(
+export function spyOn<T, G extends Getters<Required<T>>>(
   obj: T,
   methodName: { getter: G },
   mock?: () => T[G]
 ): SpyImpl<[], T[G]>
-export function spyOn<T, M extends Methods<T>>(
+export function spyOn<T, M extends Classes<Required<T>>>(
+  object: T,
+  method: M
+): Required<T>[M] extends new (...args: infer A) => infer R
+  ? SpyImpl<A, R>
+  : never
+export function spyOn<T, M extends Methods<Required<T>>>(
   obj: T,
   methodName: M,
   mock?: T[M]
-): T[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
+): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
 export function spyOn<T, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
