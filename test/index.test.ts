@@ -573,3 +573,20 @@ test('no descriptor', () => {
   expect(getter.called).toBe(true)
   expect(getter.returns[0]).toBe(42)
 })
+
+test('throw error', () => {
+  const obj = {
+    err: () => {},
+  }
+
+  spyOn(obj, 'err').willCall(() => {
+    throw new Error('oh no')
+  })
+
+  try {
+    obj.err()
+    expect.fail('should be catched')
+  } catch (err) {
+    expect(err.message).toBe('oh no')
+  }
+})

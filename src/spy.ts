@@ -61,6 +61,8 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
       } catch (err: any) {
         result = err
         type = 'error'
+        fn.results.push([type, err])
+        throw err
       }
     }
     let resultTuple: ResultFn<R> = [type, result]
