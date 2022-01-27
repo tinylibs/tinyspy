@@ -110,11 +110,7 @@ export function spyOn<T, K extends string & keyof T>(
       delete desc.writable // getter/setter can't have writable attribute at all
     }
     ;(desc as PropertyDescriptor)[accessType] = cb
-    Object.defineProperty(
-      objDescriptor || !descriptor ? obj : proto,
-      accessName,
-      desc
-    )
+    Object.defineProperty(obj, accessName, desc)
   }
   let restore = () => define(origin)
   fn.restore = restore
