@@ -76,7 +76,7 @@ export function spyOn<T, K extends string & keyof T>(
 
   let ssr = false
 
-  // vite ssr support - actual fucntion is stored inside a getter
+  // vite ssr support - actual function is stored inside a getter
   if (
     accessType === 'value' &&
     descriptor &&

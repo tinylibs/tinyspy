@@ -79,8 +79,8 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     return result
   } as SpyFn<A, R>
 
+  Object.defineProperty(fn, '_isMockFunction', { get: () => true })
   Object.defineProperty(fn, 'length', { value: cb ? cb.length : 0 })
-  Object.defineProperty(fn, '__isSpy', { value: true })
   Object.defineProperty(fn, 'returns', {
     get(this: SpyFn<A, R>) {
       return this.results.map(([, r]) => r)

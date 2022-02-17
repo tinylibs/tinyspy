@@ -9,6 +9,19 @@ const resultFactory = (type: string) => (result: any) => [type, result]
 const ok = resultFactory('ok')
 const error = resultFactory('error')
 
+test('spy is mock function', () => {
+  // @ts-expect-error is not public
+  expect(spy()._isMockFunction).toBe(true)
+  const test = {
+    method() {},
+  }
+  const fn = spyOn(test, 'method')
+  // @ts-expect-error is not public
+  expect(test.method._isMockFunction).toBe(true)
+  // @ts-expect-error is not public
+  expect(fn._isMockFunction).toBe(true)
+})
+
 test('can spy on method', () => {
   let calls: string[] = []
   let obj = {
