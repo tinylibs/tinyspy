@@ -305,6 +305,47 @@ test('will resets calls', () => {
   expect(fn.results).toEqual([])
 })
 
+test('mocks symbol method', () => {
+  let helloSym = Symbol('hello')
+  let obj = {
+    [helloSym]() {
+      return 'hello'
+    },
+  }
+
+  let method = spyOn(obj, helloSym)
+
+  obj[helloSym]()
+  obj[helloSym]()
+
+  expect(method.called).toBe(true)
+  expect(method.callCount).toBe(2)
+  expect(method.calls).toEqual([[], []])
+  expect(method.results).toEqual([ok('hello'), ok('hello')])
+
+  method.reset()
+
+  expect(method.called).toBe(false)
+  expect(method.callCount).toBe(0)
+  expect(method.calls).toEqual([])
+  expect(method.results).toEqual([])
+
+  method.restore()
+
+  expect(obj[helloSym]()).toEqual('hello')
+})
+
+test('mocks symbol method asserts on unknown symbol', () => {
+  let helloSym = Symbol('hello')
+  let obj = {
+    [helloSym]() {
+      return 'hello'
+    },
+  }
+
+  expect(() => spyOn(obj, Symbol('not-hello'))).toThrow()
+})
+
 // @ts-ignore
 test('asserts', () => {
   expect(() => {

@@ -7,6 +7,10 @@ type Methods<T> = {
   [K in keyof T]: T[K] extends Procedure ? K : never
 }[keyof T] &
   string
+type SymbolMethods<T> = {
+  [K in keyof T]: T[K] extends Procedure ? K : never
+}[keyof T] &
+  symbol
 type Getters<T> = {
   [K in keyof T]: T[K] extends Procedure ? never : K
 }[keyof T] &
@@ -16,7 +20,7 @@ type Classes<T> = {
 }[keyof T] &
   string
 
-let getDescriptor = (obj: any, method: string) =>
+let getDescriptor = (obj: any, method: string | symbol) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
 // setters exist without getter, so we can check only getters
@@ -41,7 +45,12 @@ export function spyOn<T, M extends Methods<Required<T>>>(
   methodName: M,
   mock?: T[M]
 ): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
-export function spyOn<T, K extends string & keyof T>(
+export function spyOn<T, M extends SymbolMethods<Required<T>>>(
+  obj: T,
+  methodName: M,
+  mock?: T[M]
+): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
+export function spyOn<T, K extends (string | symbol) & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
   mock?: Procedure
@@ -56,14 +65,20 @@ export function spyOn<T, K extends string & keyof T>(
     'cannot spyOn on a primitive value'
   )
 
-  let getMeta = (): [string, 'value' | 'get' | 'set'] => {
+  let getMeta = (): [string | symbol, 'value' | 'get' | 'set'] => {
     if (typeof methodName === 'string') {
       return [methodName, 'value']
     }
-    if ('getter' in methodName) {
-      return [methodName.getter, 'get']
+
+    if (typeof methodName === 'object') {
+      if ('getter' in methodName) {
+        return [methodName.getter, 'get']
+      }
+      return [methodName.setter, 'set']
     }
-    return [methodName.setter, 'set']
+
+    // else `methodName` is typeof `symbol`
+    return [methodName, 'value']
   }
 
   let [accessName, accessType] = getMeta()
@@ -72,7 +87,10 @@ export function spyOn<T, K extends string & keyof T>(
   let protoDescriptor = proto && getDescriptor(proto, accessName)
   let descriptor = objDescriptor || protoDescriptor
 
-  assert(descriptor || accessName in obj, `${accessName} does not exist`)
+  assert(
+    descriptor || accessName in obj,
+    `${accessName.toString()} does not exist`
+  )
 
   let ssr = false
 
