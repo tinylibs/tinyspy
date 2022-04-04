@@ -5,18 +5,15 @@ type Procedure = (...args: any[]) => any
 
 type Methods<T> = {
   [K in keyof T]: T[K] extends Procedure ? K : never
-}[keyof T] &
-  string
+}[keyof T]
 type Getters<T> = {
   [K in keyof T]: T[K] extends Procedure ? never : K
-}[keyof T] &
-  string
+}[keyof T]
 type Classes<T> = {
   [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never
-}[keyof T] &
-  string
+}[keyof T]
 
-let getDescriptor = (obj: any, method: string) =>
+let getDescriptor = (obj: any, method: string | symbol | number) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
 // setters exist without getter, so we can check only getters
@@ -56,14 +53,20 @@ export function spyOn<T, K extends string & keyof T>(
     'cannot spyOn on a primitive value'
   )
 
-  let getMeta = (): [string, 'value' | 'get' | 'set'] => {
-    if (typeof methodName === 'string') {
+  let getMeta = (): [string | symbol | number, 'value' | 'get' | 'set'] => {
+    if (typeof methodName !== 'object') {
       return [methodName, 'value']
+    }
+    if ('getter' in methodName && 'setter' in methodName) {
+      throw new Error('cannot spy on both getter and setter')
     }
     if ('getter' in methodName) {
       return [methodName.getter, 'get']
     }
-    return [methodName.setter, 'set']
+    if ('setter' in methodName) {
+      return [methodName.setter, 'set']
+    }
+    throw new Error('specify getter or setter to spy on')
   }
 
   let [accessName, accessType] = getMeta()
@@ -72,7 +75,10 @@ export function spyOn<T, K extends string & keyof T>(
   let protoDescriptor = proto && getDescriptor(proto, accessName)
   let descriptor = objDescriptor || protoDescriptor
 
-  assert(descriptor || accessName in obj, `${accessName} does not exist`)
+  assert(
+    descriptor || accessName in obj,
+    `${String(accessName)} does not exist`
+  )
 
   let ssr = false
 

@@ -603,3 +603,28 @@ test('throw error', () => {
     expect(err.message).toBe('oh no')
   }
 })
+
+test('mock symbol methods', () => {
+  const sym = Symbol()
+  const obj = {
+    [sym]: () => {},
+  }
+
+  const spy = spyOn(obj, sym)
+
+  obj[sym]()
+
+  expect(spy.called).toBe(true)
+})
+
+test('mock number methods', () => {
+  const obj = {
+    [4]: () => {},
+  }
+
+  const spy = spyOn(obj, 4)
+
+  obj[4]()
+
+  expect(spy.called).toBe(true)
+})
