@@ -49,7 +49,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
       }
       throw result
     }
-    // it can be thrown (anythig can be thrown),
+    // it can be thrown (anything can be thrown),
     // it can be a return value
     // it can be undefined, if there is no mocking function
     let result: any
