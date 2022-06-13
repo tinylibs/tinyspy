@@ -449,7 +449,7 @@ test('async error', async () => {
   expect(spy.called).toBe(true)
   expect(spy.results[0][1]).toBeInstanceOf(Promise)
 
-  let caughtError = null
+  let caughtError: null | Error = null
   try {
     await promise
   } catch (e) {
@@ -459,7 +459,7 @@ test('async error', async () => {
   expect(spy.results[0][0]).toEqual('error')
   expect(spy.results[0][1].message).toEqual('async error')
   expect(caughtError).toBeInstanceOf(Error)
-  expect(caughtError.message).toEqual('async error')
+  expect(caughtError?.message).toEqual('async error')
 })
 
 test('proto null', () => {
@@ -627,4 +627,39 @@ test('mock number methods', () => {
   obj[4]()
 
   expect(spy.called).toBe(true)
+})
+
+test('preserves promise', async () => {
+  const cancelFn = spy()
+  const fn = spy(() => {
+    const promise = new Promise<void>((resolve) =>
+      resolve()
+    ) as Promise<void> & {
+      cancel: () => void
+    }
+    promise.cancel = cancelFn
+    return promise
+  })
+
+  const res = fn()
+
+  await res
+
+  expect(res).toHaveProperty('cancel')
+  expect(res.cancel).toBe(cancelFn)
+})
+
+test('can chain a promise', async () => {
+  const fn = spy(() => Promise.resolve())
+  const chain1 = spy()
+  const chain2 = spy()
+  const error = spy()
+  const onFinally = spy()
+
+  await fn().then(chain1).then(chain2).catch(error).finally(onFinally)
+
+  expect(chain1.called).toBe(true)
+  expect(chain2.called).toBe(true)
+  expect(error.called).toBe(false)
+  expect(onFinally.called).toBe(true)
 })

@@ -67,13 +67,17 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     }
     let resultTuple: ResultFn<R> = [type, result]
     if (result && isType('object', result) && isType('function', result.then)) {
-      result = result
+      const newPromise = result
         .then((r: any) => (resultTuple[1] = r))
         .catch((e: any) => {
           resultTuple[0] = 'error'
           resultTuple[1] = e
           throw e
         })
+      // we need to reassign it because if it fails, the suite will fail
+      // see `async error` test in `test/index.test.ts`
+      Object.assign(newPromise, result)
+      result = newPromise
     }
     fn.results.push(resultTuple)
     return result
