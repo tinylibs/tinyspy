@@ -7,20 +7,18 @@ This package was created for having a tiny spy library to use in `vitest`, but i
 
 ## Installing
 
-```
+```bash
 // with npm
-npm install -D tinyspy
+$ npm install -D tinyspy
 
 // with pnpm
-pnpm install -D tinyspy
+$ pnpm install -D tinyspy
 
 // with yarn
-yarn install -D tinyspy
+$ yarn install -D tinyspy
 ```
 
 ## Usage
-
-> Warning! Does not support ESM mocking. You can use `tinyspy` with `vitest`, who performs additional transformations to make ESM mocking work.
 
 ### spy
 
@@ -67,7 +65,7 @@ const spied = spy(async (n: string) => n + '!')
 const promise = spied('a')
 
 console.log(spied.called) // true
-console.log(spiet.returns) // [Promise]
+console.log(spiet.returns) // [Promise<'a!'>]
 
 await promise
 
@@ -125,7 +123,7 @@ console.log(spyGetter.called) // true
 console.log(spyGetter.returns) // [1]
 ```
 
-You can reassign mocked function and restore mock to it's original implementation with `restore` method:
+You can reassign mocked function and restore mock to its original implementation with `restore` method:
 
 ```ts
 const obj = {
@@ -159,7 +157,7 @@ apples = 1
 console.log(obj.apples) // prints 1
 ```
 
-You can restore spied function to it's original value with `restore` method:
+You can restore spied function to its original value with `restore` method:
 
 ```ts
 let apples = 0
