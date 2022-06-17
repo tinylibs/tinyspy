@@ -7,3 +7,11 @@ export function assert(condition: any, message: string) {
 export function isType(type: string, value: any) {
   return typeof value === type
 }
+
+export function define(
+  obj: any,
+  key: string | number | symbol,
+  descriptor: PropertyDescriptor
+) {
+  Object.defineProperty(obj, key, descriptor)
+}

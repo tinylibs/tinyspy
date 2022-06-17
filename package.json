@@ -6,31 +6,35 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "prepare": "husky install",
-    "publish": "clean-publish",
+    "publish": "npm run build && clean-publish",
+    "release": "bumpp package.json --commit --push --tag && npm run publish",
     "test": "vitest --no-threads"
   },
   "main": "./dist/index.cjs",
-  "exports": {
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
-  },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs",
+    "default": "./dist/index.cjs"
+  },
   "files": [
     "dist/**"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aslemammad/tinyspy.git"
+    "url": "git+https://github.com/tinylibs/tinyspy.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/aslemammad/tinyspy/issues"
+    "url": "https://github.com/tinylibs/tinyspy/issues"
   },
-  "homepage": "https://github.com/aslemammad/tinyspy#readme",
+  "homepage": "https://github.com/tinylibs/tinyspy#readme",
   "devDependencies": {
     "@size-limit/preset-small-lib": "^7.0.4",
     "@size-limit/time": "^7.0.4",
+    "bumpp": "^8.2.0",
     "clean-publish": "^3.4.4",
     "happy-dom": "^2.25.1",
     "husky": "^7.0.4",

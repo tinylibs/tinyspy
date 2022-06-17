@@ -1,5 +1,5 @@
 import { spy, spies, SpyImpl } from './spy'
-import { assert, isType } from './utils'
+import { assert, define, isType } from './utils'
 
 type Procedure = (...args: any[]) => any
 
@@ -107,7 +107,7 @@ export function spyOn<T, K extends string & keyof T>(
   if (!mock) mock = origin
 
   let fn = spy(mock) as unknown as SpyImpl
-  let define = (cb: any) => {
+  let reassign = (cb: any) => {
     let { value, ...desc } = descriptor || {
       configurable: true,
       writable: true,
@@ -116,9 +116,9 @@ export function spyOn<T, K extends string & keyof T>(
       delete desc.writable // getter/setter can't have writable attribute at all
     }
     ;(desc as PropertyDescriptor)[accessType] = cb
-    Object.defineProperty(obj, accessName, desc)
+    define(obj, accessName, desc)
   }
-  let restore = () => define(origin)
+  let restore = () => reassign(origin)
   fn.restore = restore
   fn.getOriginal = () => (ssr ? origin() : origin)
   fn.willCall = (newCb: Procedure) => {
@@ -126,7 +126,7 @@ export function spyOn<T, K extends string & keyof T>(
     return fn
   }
 
-  define(ssr ? () => fn : fn)
+  reassign(ssr ? () => fn : fn)
 
   spies.add(fn)
   return fn

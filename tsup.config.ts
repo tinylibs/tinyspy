@@ -5,8 +5,11 @@ export default defineConfig({
   outDir: 'dist',
   format: ['esm', 'cjs'],
   tsconfig: './tsconfig.json',
-  target: 'node14',
+  target: 'es2018',
   minify: false,
+  minifySyntax: true,
+  minifyWhitespace: false,
+  minifyIdentifiers: true,
   clean: true,
   dts: true,
 })
