@@ -5,6 +5,7 @@
 A `9KB` package for minimal and easy testing with no dependencies.
 This package was created for having a tiny spy library to use in `vitest`, but it can also be used in `jest` and other test environments.
 
+*In case you need more tiny libraries like tinypool or tinyspy, please consider submitting an [RFC](https://github.com/tinylibs/rfcs)*
 ## Installing
 
 ```bash
