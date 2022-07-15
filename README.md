@@ -5,7 +5,8 @@
 A `9KB` package for minimal and easy testing with no dependencies.
 This package was created for having a tiny spy library to use in `vitest`, but it can also be used in `jest` and other test environments.
 
-*In case you need more tiny libraries like tinypool or tinyspy, please consider submitting an [RFC](https://github.com/tinylibs/rfcs)*
+_In case you need more tiny libraries like tinypool or tinyspy, please consider submitting an [RFC](https://github.com/tinylibs/rfcs)_
+
 ## Installing
 
 ```bash
@@ -174,3 +175,8 @@ obj.restore()
 
 console.log(obj.getApples()) // 13
 ```
+
+## Authors
+
+| <a href="https://github.com/Aslemammad"> <img width='150' src="https://avatars.githubusercontent.com/u/37929992?v=4" /><br> Mohammad Bagher </a> | <a href="https://github.com/sheremet-va"> <img width='150' src="https://avatars.githubusercontent.com/u/16173870?v=4" /><br> Vladimir </a> |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
