@@ -663,3 +663,25 @@ test('can chain a promise', async () => {
   expect(error.called).toBe(false)
   expect(onFinally.called).toBe(true)
 })
+
+test('does not await on non-promise values that contain .then', async () => {
+  class ChainablePromiselike {
+    private values: string[] = []
+
+    addValue(value: string) {
+      this.values.push(value)
+      return this
+    }
+
+    then(fn: () => {}) {
+      return Promise.resolve(this.values).then(fn)
+    }
+  }
+
+  const originalResult = new ChainablePromiselike()
+    .addValue('Hello')
+    .addValue('World')
+  const spied = spy(() => new ChainablePromiselike())
+  const spiedResult = spied().addValue('Hello').addValue('World')
+  expect(spiedResult).toStrictEqual(originalResult)
+})
