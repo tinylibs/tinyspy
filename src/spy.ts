@@ -1,4 +1,4 @@
-import { assert, define, isType } from './utils'
+import { assert, define, isPromise, isType } from './utils'
 
 export let spies = new Set<SpyImpl>()
 
@@ -66,7 +66,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
       }
     }
     let resultTuple: ResultFn<R> = [type, result]
-    if (result && isType('object', result) && isType('function', result.then)) {
+    if (isPromise(result)) {
       const newPromise = result
         .then((r: any) => (resultTuple[1] = r))
         .catch((e: any) => {
