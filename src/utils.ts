@@ -8,6 +8,10 @@ export function isType(type: string, value: any) {
   return typeof value === type
 }
 
+export function isPromise(value: any) {
+  return value instanceof Promise
+}
+
 export function define(
   obj: any,
   key: string | number | symbol,
