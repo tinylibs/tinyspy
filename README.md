@@ -26,8 +26,8 @@ $ yarn install -D tinyspy
 
 Simplest usage would be:
 
-```ts
-const fn = (n: string) => n + '!'
+```js
+const fn = (n) => n + '!'
 const spied = spy(fn)
 
 spied('a')
@@ -41,8 +41,8 @@ console.log(spied.returns) // ['a!']
 
 You can reset calls, returns, called and callCount with `reset` function:
 
-```ts
-const spied = spy((n: string) => n + '!')
+```js
+const spied = spy((n) => n + '!')
 
 spied('a')
 
@@ -61,8 +61,8 @@ console.log(spied.returns) // []
 
 If you have async implementation, you need to `await` the method to get awaited results (if you don't, you will get a `Promise` inside `results`):
 
-```ts
-const spied = spy(async (n: string) => n + '!')
+```js
+const spied = spy(async (n) => n + '!')
 
 const promise = spied('a')
 
@@ -80,7 +80,7 @@ console.log(spiet.returns) // ['a!']
 
 You can spy on an object's method or setter/getter with `spyOn` function.
 
-```ts
+```js
 let apples = 0
 const obj = {
   getApples: () => 13,
@@ -95,7 +95,7 @@ console.log(spy.called) // true
 console.log(spy.returns) // [1]
 ```
 
-```ts
+```js
 let apples = 0
 let fakedApples = 0
 const obj = {
@@ -127,9 +127,9 @@ console.log(spyGetter.returns) // [1]
 
 You can reassign mocked function and restore mock to its original implementation with `restore` method:
 
-```ts
+```js
 const obj = {
-  fn: (n: string) => n + '!',
+  fn: (n) => n + '!',
 }
 const spied = spyOn(obj, 'fn').willCall((n) => n + '.')
 
@@ -146,7 +146,7 @@ console.log(spied.returns) // ['a!']
 
 You can even make an attribute into a dynamic getter!
 
-```ts
+```js
 let apples = 0
 const obj = {
   apples: 13,
@@ -161,7 +161,7 @@ console.log(obj.apples) // prints 1
 
 You can restore spied function to its original value with `restore` method:
 
-```ts
+```js
 let apples = 0
 const obj = {
   getApples: () => 13,
