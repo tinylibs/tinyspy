@@ -28,9 +28,12 @@ export interface SpyImpl<A extends any[] = any[], R = any> extends Spy<A, R> {
 
 export interface SpyFn<A extends any[] = any[], R = any> extends Spy<A, R> {
   (...args: A): R
+  new (...args: A): R
 }
 
-export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
+export function spy<A extends any[], R>(
+  cb?: ((...args: A) => R) | { new (...args: A): R }
+): SpyFn<A, R> {
   assert(
     isType('function', cb) || isType('undefined', cb),
     'cannot spy on a non-function value'
@@ -56,7 +59,9 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     let type: 'ok' | 'error' = 'ok'
     if (fn.impl) {
       try {
-        result = fn.impl.apply(this, args)
+        result = new.target
+          ? new (fn.impl as any)(...args)
+          : fn.impl.apply(this, args)
         type = 'ok'
       } catch (err: any) {
         result = err
@@ -98,7 +103,7 @@ export function spy<A extends any[], R>(cb?: (...args: A) => R): SpyFn<A, R> {
     fn.calls = []
   }
   reset()
-  fn.impl = cb
+  fn.impl = cb as any
   fn.reset = reset
   fn.nextError = (error: any) => {
     fn.next = ['error', error]
