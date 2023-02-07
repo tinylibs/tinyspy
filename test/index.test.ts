@@ -689,11 +689,17 @@ test('does not await on non-promise values that contain .then', async () => {
 test('spyOn with new.target', () => {
   const fn = {
     fnFunc: () => {},
+    fnClass: class FnClass {},
   }
 
   spyOn(fn, 'fnFunc').willCall(function () {
     expect(new.target).toBeUndefined()
   })
+  spyOn(fn, 'fnClass').willCall(function () {
+    expect(new.target).toBeDefined()
+    return fn.fnClass
+  })
 
   fn.fnFunc()
+  new fn.fnClass()
 })
