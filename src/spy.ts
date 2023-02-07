@@ -59,9 +59,7 @@ export function spy<A extends any[], R>(
     let type: 'ok' | 'error' = 'ok'
     if (fn.impl) {
       try {
-        result = new.target
-          ? new (fn.impl as any)(...args)
-          : fn.impl.apply(this, args)
+        result = fn.impl.apply(this, args)
         type = 'ok'
       } catch (err: any) {
         result = err
