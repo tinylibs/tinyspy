@@ -685,3 +685,15 @@ test('does not await on non-promise values that contain .then', async () => {
   const spiedResult = spied().addValue('Hello').addValue('World')
   expect(spiedResult).toStrictEqual(originalResult)
 })
+
+test('spyOn with new.target', () => {
+  const fn = {
+    fnFunc: () => {},
+  }
+
+  spyOn(fn, 'fnFunc').willCall(function () {
+    expect(new.target).toBeUndefined()
+  })
+
+  fn.fnFunc()
+})
