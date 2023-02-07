@@ -30,13 +30,31 @@ describe('class mock', () => {
     expect(() => new fnArrow()).toThrowError()
   })
 
-  test('respects new.target', () => {
+  test('respects new.target in a function', () => {
     let target: unknown = null
     let args: unknown[] = []
     const fnScoped = spy(function (...fnArgs: unknown[]) {
       target = new.target
       args = fnArgs
     })
+
+    new fnScoped('some', 'text', 1)
+    expect(target).toBeTypeOf('function')
+    expect(args).toEqual(['some', 'text', 1])
+    expect(fnScoped.calls).toEqual([['some', 'text', 1]])
+  })
+
+  test('respects new.target in a class', () => {
+    let target: unknown = null
+    let args: unknown[] = []
+    const fnScoped = spy(
+      class {
+        constructor(...fnArgs: unknown[]) {
+          target = new.target
+          args = fnArgs
+        }
+      }
+    )
 
     new fnScoped('some', 'text', 1)
     expect(target).toBeTypeOf('function')
