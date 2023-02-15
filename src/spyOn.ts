@@ -1,5 +1,6 @@
-import { spy, spies, SpyImpl } from './spy'
-import { assert, define, isType } from './utils'
+import { createInternalSpy, populateSpy, spies, SpyImpl } from './internal'
+import { assert, define, defineValue, isType } from './utils'
+import { S } from './constants'
 
 type Procedure = (...args: any[]) => any
 
@@ -9,7 +10,7 @@ type Methods<T> = {
 type Getters<T> = {
   [K in keyof T]: T[K] extends Procedure ? never : K
 }[keyof T]
-type Classes<T> = {
+type Constructors<T> = {
   [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never
 }[keyof T]
 
@@ -27,7 +28,7 @@ export function spyOn<T, G extends Getters<Required<T>>>(
   methodName: { getter: G },
   mock?: () => T[G]
 ): SpyImpl<[], T[G]>
-export function spyOn<T, M extends Classes<Required<T>>>(
+export function spyOn<T, M extends Constructors<Required<T>>>(
   object: T,
   method: M
 ): Required<T>[M] extends new (...args: infer A) => infer R
@@ -38,7 +39,7 @@ export function spyOn<T, M extends Methods<Required<T>>>(
   methodName: M,
   mock?: T[M]
 ): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
-export function spyOn<T, K extends string & keyof T>(
+export function spyOn<T extends object, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
   mock?: Procedure
@@ -106,7 +107,7 @@ export function spyOn<T, K extends string & keyof T>(
 
   if (!mock) mock = origin
 
-  let fn = spy(mock) as unknown as SpyImpl
+  let fn = createInternalSpy(mock)
   let reassign = (cb: any) => {
     let { value, ...desc } = descriptor || {
       configurable: true,
@@ -119,15 +120,17 @@ export function spyOn<T, K extends string & keyof T>(
     define(obj, accessName, desc)
   }
   let restore = () => reassign(origin)
-  fn.restore = restore
-  fn.getOriginal = () => (ssr ? origin() : origin)
-  fn.willCall = (newCb: Procedure) => {
-    fn.impl = newCb
+  defineValue(fn, 'restore', restore)
+  defineValue(fn, 'getOriginal', () => (ssr ? origin() : origin))
+  defineValue(fn, 'willCall', (newCb: Procedure) => {
+    fn[S].impl = newCb
     return fn
-  }
+  })
 
   reassign(ssr ? () => fn : fn)
 
-  spies.add(fn)
-  return fn
+  populateSpy(fn)
+
+  spies.add(fn as any)
+  return fn as any
 }

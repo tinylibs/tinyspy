@@ -1,4 +1,4 @@
-import { spies } from './spy'
+import { spies } from './internal'
 
 export function restoreAll() {
   for (let fn of spies) {
