@@ -67,11 +67,11 @@ const spied = spy(async (n) => n + '!')
 const promise = spied('a')
 
 console.log(spied.called) // true
-console.log(spiet.returns) // [Promise<'a!'>]
+console.log(spied.returns) // [Promise<'a!'>]
 
 await promise
 
-console.log(spiet.returns) // ['a!']
+console.log(spied.returns) // ['a!']
 ```
 
 ### spyOn
