@@ -23,7 +23,7 @@ type Constructors<T> = {
 let getDescriptor = (obj: any, method: string | symbol | number) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
-export function internalSpyOn<T extends object, K extends string & keyof T>(
+export function internalSpyOn<T, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
   mock?: Procedure

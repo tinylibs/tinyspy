@@ -1,6 +1,11 @@
 import { assert, define, defineValue, isPromise, isType } from './utils'
 import { S } from './constants'
 
+interface GetState {
+  <A extends any[], R>(spy: SpyInternalImpl<A, R>): SpyInternalImplState<A, R>
+  <A extends any[], R>(spy: SpyInternal<A, R>): SpyInternalState<A, R>
+}
+
 export let spies = new Set<SpyImpl>()
 
 let reset = (state: SpyInternalState) => {
@@ -13,8 +18,8 @@ let defineState = (spy: SpyInternal) => {
   define(spy, S, { value: { reset: () => reset(spy[S]) } })
   return spy[S]
 }
-export let getInternalState = <A extends any[], R>(spy: SpyInternal<A, R>) => {
-  return spy[S] || defineState(spy)
+export let getInternalState: GetState = (spy) => {
+  return (spy[S] || defineState(spy)) as any
 }
 
 type ReturnError = ['error', any]
