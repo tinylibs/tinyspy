@@ -9,8 +9,13 @@ let reset = (V: SpyInternalState) => {
   V.calls = []
   V.results = []
 }
-let A = <A extends any[], R>(spy: SpyInternal<A, R>) =>
-  spy[S] || (spy[S] = { reset: () => reset(spy[S]) } as SpyInternalState<A, R>)
+let defineState = (spy: SpyInternal) => {
+  define(spy, S, { value: { reset: () => reset(spy[S]) } })
+  return spy[S]
+}
+let getInternalState = <A extends any[], R>(spy: SpyInternal<A, R>) => {
+  return spy[S] || defineState(spy)
+}
 
 type ReturnError = ['error', any]
 type ReturnOk<R> = ['ok', R]
@@ -21,6 +26,11 @@ export interface SpyInternal<A extends any[] = any[], R = any> {
   [S]: SpyInternalState<A, R>
 }
 
+export interface SpyInternalImpl<A extends any[] = any[], R = any>
+  extends SpyInternal<A, R> {
+  [S]: SpyInternalImplState<A, R>
+}
+
 interface SpyInternalState<A extends any[] = any[], R = any> {
   called: boolean
   callCount: number
@@ -29,6 +39,13 @@ interface SpyInternalState<A extends any[] = any[], R = any> {
   reset(): void
   impl: ((...args: A) => R) | undefined
   next: ResultFn<R> | null
+}
+
+interface SpyInternalImplState<A extends any[] = any[], R = any>
+  extends SpyInternalState<A, R> {
+  getOriginal(): (...args: A) => R
+  willCall(cb: (...args: A) => R): this
+  restore(): void
 }
 
 export interface Spy<A extends any[] = any[], R = any>
@@ -54,7 +71,7 @@ export function createInternalSpy<A extends any[], R>(
   )
 
   let fn = function (this: any, ...args: A) {
-    const V = A(fn)
+    const V = getInternalState(fn)
     V.called = true
     V.callCount++
     V.calls.push(args)
@@ -105,7 +122,7 @@ export function createInternalSpy<A extends any[], R>(
   defineValue(fn, 'length', cb ? cb.length : 0)
   defineValue(fn, 'name', cb ? cb.name || 'spy' : 'spy')
 
-  const I = A(fn)
+  const I = getInternalState(fn)
   I.reset()
   I.impl = cb as any
 
@@ -113,14 +130,16 @@ export function createInternalSpy<A extends any[], R>(
 }
 
 export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
-  const I = A(spy)
+  const I = getInternalState(spy)
 
   define(spy, 'returns', {
     get: () => I.results.map(([, r]) => r),
   })
   ;(
     ['called', 'callCount', 'results', 'calls', 'reset', 'impl'] as const
-  ).forEach((n) => define(spy, n, { get: () => I[n] }))
+  ).forEach((n) =>
+    define(spy, n, { get: () => I[n], set: (v) => (I[n] = v as never) })
+  )
   defineValue(spy, 'nextError', (error: any) => {
     I.next = ['error', error]
     return I

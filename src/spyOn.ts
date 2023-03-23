@@ -1,4 +1,10 @@
-import { createInternalSpy, populateSpy, spies, SpyImpl } from './internal'
+import {
+  createInternalSpy,
+  populateSpy,
+  spies,
+  SpyImpl,
+  SpyInternalImpl,
+} from './internal'
 import { assert, define, defineValue, isType } from './utils'
 import { S } from './constants'
 
@@ -17,33 +23,11 @@ type Constructors<T> = {
 let getDescriptor = (obj: any, method: string | symbol | number) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
-// setters exist without getter, so we can check only getters
-export function spyOn<T, S extends Getters<Required<T>>>(
-  obj: T,
-  methodName: { setter: S },
-  mock?: (arg: T[S]) => void
-): SpyImpl<[T[S]], void>
-export function spyOn<T, G extends Getters<Required<T>>>(
-  obj: T,
-  methodName: { getter: G },
-  mock?: () => T[G]
-): SpyImpl<[], T[G]>
-export function spyOn<T, M extends Constructors<Required<T>>>(
-  object: T,
-  method: M
-): Required<T>[M] extends new (...args: infer A) => infer R
-  ? SpyImpl<A, R>
-  : never
-export function spyOn<T, M extends Methods<Required<T>>>(
-  obj: T,
-  methodName: M,
-  mock?: T[M]
-): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
-export function spyOn<T extends object, K extends string & keyof T>(
+export function internalSpyOn<T extends object, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
   mock?: Procedure
-): SpyImpl<any[], any> {
+): SpyInternalImpl<any[], any> {
   assert(
     !isType('undefined', obj),
     'spyOn could not find an object to spy upon'
@@ -55,7 +39,7 @@ export function spyOn<T extends object, K extends string & keyof T>(
   )
 
   let getMeta = (): [string | symbol | number, 'value' | 'get' | 'set'] => {
-    if (typeof methodName !== 'object') {
+    if (!isType('object', methodName)) {
       return [methodName, 'value']
     }
     if ('getter' in methodName && 'setter' in methodName) {
@@ -120,17 +104,50 @@ export function spyOn<T extends object, K extends string & keyof T>(
     define(obj, accessName, desc)
   }
   let restore = () => reassign(origin)
-  defineValue(fn, 'restore', restore)
-  defineValue(fn, 'getOriginal', () => (ssr ? origin() : origin))
-  defineValue(fn, 'willCall', (newCb: Procedure) => {
+  defineValue(fn[S], 'restore', restore)
+  defineValue(fn[S], 'getOriginal', () => (ssr ? origin() : origin))
+  defineValue(fn[S], 'willCall', (newCb: Procedure) => {
     fn[S].impl = newCb
     return fn
   })
 
   reassign(ssr ? () => fn : fn)
 
-  populateSpy(fn)
-
   spies.add(fn as any)
   return fn as any
+}
+
+// setters exist without getter, so we can check only getters
+export function spyOn<T, S extends Getters<Required<T>>>(
+  obj: T,
+  methodName: { setter: S },
+  mock?: (arg: T[S]) => void
+): SpyImpl<[T[S]], void>
+export function spyOn<T, G extends Getters<Required<T>>>(
+  obj: T,
+  methodName: { getter: G },
+  mock?: () => T[G]
+): SpyImpl<[], T[G]>
+export function spyOn<T, M extends Constructors<Required<T>>>(
+  object: T,
+  method: M
+): Required<T>[M] extends new (...args: infer A) => infer R
+  ? SpyImpl<A, R>
+  : never
+export function spyOn<T, M extends Methods<Required<T>>>(
+  obj: T,
+  methodName: M,
+  mock?: T[M]
+): Required<T>[M] extends (...args: infer A) => infer R ? SpyImpl<A, R> : never
+export function spyOn<T extends object, K extends string & keyof T>(
+  obj: T,
+  methodName: K | { getter: K } | { setter: K },
+  mock?: Procedure
+): SpyImpl<any[], any> {
+  const spy = internalSpyOn(obj, methodName, mock)
+  populateSpy(spy)
+  ;(['restore', 'getOriginal', 'willCall'] as const).forEach((method) => {
+    defineValue(spy, method, spy[S][method])
+  })
+  return spy as any as SpyImpl
 }
