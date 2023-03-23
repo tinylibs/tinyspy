@@ -6,8 +6,8 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "prepare": "husky install",
-    "publish": "npm run build && clean-publish",
-    "release": "bumpp package.json --commit --push --tag && npm run publish",
+    "publish": "pnpm run build && clean-publish",
+    "release": "bumpp package.json --commit --push --tag && pnpm run publish",
     "test": "vitest --no-threads"
   },
   "main": "./dist/index.cjs",
