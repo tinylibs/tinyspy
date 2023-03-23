@@ -104,10 +104,11 @@ export function internalSpyOn<T extends object, K extends string & keyof T>(
     define(obj, accessName, desc)
   }
   let restore = () => reassign(origin)
-  defineValue(fn[S], 'restore', restore)
-  defineValue(fn[S], 'getOriginal', () => (ssr ? origin() : origin))
-  defineValue(fn[S], 'willCall', (newCb: Procedure) => {
-    fn[S].impl = newCb
+  const state = fn[S]
+  defineValue(state, 'restore', restore)
+  defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
+  defineValue(state, 'willCall', (newCb: Procedure) => {
+    state.impl = newCb
     return fn
   })
 

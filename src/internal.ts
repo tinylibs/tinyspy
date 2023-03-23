@@ -3,17 +3,17 @@ import { S } from './constants'
 
 export let spies = new Set<SpyImpl>()
 
-let reset = (V: SpyInternalState) => {
-  V.called = false
-  V.callCount = 0
-  V.calls = []
-  V.results = []
+let reset = (state: SpyInternalState) => {
+  state.called = false
+  state.callCount = 0
+  state.calls = []
+  state.results = []
 }
 let defineState = (spy: SpyInternal) => {
   define(spy, S, { value: { reset: () => reset(spy[S]) } })
   return spy[S]
 }
-let getInternalState = <A extends any[], R>(spy: SpyInternal<A, R>) => {
+export let getInternalState = <A extends any[], R>(spy: SpyInternal<A, R>) => {
   return spy[S] || defineState(spy)
 }
 
@@ -71,14 +71,14 @@ export function createInternalSpy<A extends any[], R>(
   )
 
   let fn = function (this: any, ...args: A) {
-    const V = getInternalState(fn)
-    V.called = true
-    V.callCount++
-    V.calls.push(args)
-    if (V.next) {
-      let [type, result] = V.next
-      V.results.push(V.next)
-      V.next = null
+    const state = getInternalState(fn)
+    state.called = true
+    state.callCount++
+    state.calls.push(args)
+    if (state.next) {
+      let [type, result] = state.next
+      state.results.push(state.next)
+      state.next = null
       if (type === 'ok') {
         return result
       }
@@ -89,14 +89,14 @@ export function createInternalSpy<A extends any[], R>(
     // it can be undefined, if there is no mocking function
     let result: any
     let type: 'ok' | 'error' = 'ok'
-    if (V.impl) {
+    if (state.impl) {
       try {
-        result = V.impl.apply(this, args)
+        result = state.impl.apply(this, args)
         type = 'ok'
       } catch (err: any) {
         result = err
         type = 'error'
-        V.results.push([type, err])
+        state.results.push([type, err])
         throw err
       }
     }
@@ -114,7 +114,7 @@ export function createInternalSpy<A extends any[], R>(
       Object.assign(newPromise, result)
       result = newPromise
     }
-    V.results.push(resultTuple)
+    state.results.push(resultTuple)
     return result
   } as SpyInternal<A, R>
 

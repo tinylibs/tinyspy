@@ -1,5 +1,5 @@
 export * from './spy'
 export * from './spyOn'
 export * from './restoreAll'
-export { createInternalSpy, spies } from './internal'
+export { createInternalSpy, spies, getInternalState } from './internal'
 export type { Spy, SpyImpl } from './internal'
