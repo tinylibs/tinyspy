@@ -185,7 +185,7 @@ console.log(obj.getApples()) // 13
 
 Your sponsorship can make a huge difference in continuing our work in open source!
 
-## Vladimir sponsors
+### Vladimir sponsors
 
 <p align="center">
   <a href="https://cdn.jsdelivr.net/gh/sheremet-va/static/sponsors.svg">
@@ -193,7 +193,7 @@ Your sponsorship can make a huge difference in continuing our work in open sourc
   </a>
 </p>
 
-## Mohammad sponsors
+### Mohammad sponsors
 
 <p align="center">
   <a href="https://cdn.jsdelivr.net/gh/aslemammad/static/sponsors.svg">
