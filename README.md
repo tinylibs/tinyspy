@@ -180,3 +180,23 @@ console.log(obj.getApples()) // 13
 
 | <a href="https://github.com/Aslemammad"> <img width='150' src="https://avatars.githubusercontent.com/u/37929992?v=4" /><br> Mohammad Bagher </a> | <a href="https://github.com/sheremet-va"> <img width='150' src="https://avatars.githubusercontent.com/u/16173870?v=4" /><br> Vladimir </a> |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+
+## Sponsors
+
+Your sponsorship can make a huge difference in continuing our work in open source!
+
+## Vladimir sponsors
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/sheremet-va/static/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/sheremet-va/static/sponsors.svg'/>
+  </a>
+</p>
+
+## Mohammad sponsors
+
+<p align="center">
+  <a href="https://cdn.jsdelivr.net/gh/aslemammad/static/sponsors.svg">
+    <img src='https://cdn.jsdelivr.net/gh/aslemammad/static/sponsors.svg'/>
+  </a>
+</p>
