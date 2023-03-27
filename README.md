@@ -49,7 +49,7 @@ spied('a')
 console.log(spied.called) // true
 console.log(spied.callCount) // 1
 console.log(spied.calls) // [['a']]
-console.log(spied.returns) // ['a.']
+console.log(spied.returns) // ['a!']
 
 spied.reset()
 
