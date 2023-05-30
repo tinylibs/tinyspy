@@ -31,7 +31,11 @@ test('can spy on method', () => {
     },
   }
 
+  const original = obj.method
+
   let method = spyOn(obj, 'method')
+
+  expect(original).not.toBe(obj.method)
   expect(method.called).toBe(false)
   expect(method.callCount).toBe(0)
   expect(method.calls).toEqual([])
@@ -70,6 +74,7 @@ test('can spy on method', () => {
   expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 
   method.restore()
+  expect(original).toBe(obj.method)
   expect(obj.method('e')).toBe('e!')
   expect(calls).toEqual(['a', 'b', 'e'])
   expect(method.callCount).toBe(4)
@@ -585,6 +590,10 @@ test('no descriptor', () => {
   expect(count).toBe(42)
   expect(getter.called).toBe(true)
   expect(getter.returns[0]).toBe(42)
+
+  spy.restore()
+
+  expect(head.appendChild).toBeTruthy()
 })
 
 test('throw error', () => {
@@ -684,4 +693,15 @@ test('does not await on non-promise values that contain .then', async () => {
   const spied = spy(() => new ChainablePromiselike())
   const spiedResult = spied().addValue('Hello').addValue('World')
   expect(spiedResult).toStrictEqual(originalResult)
+})
+
+test('.restore correctly restores primitive property', () => {
+  const obj = {
+    test: 42
+  }
+  const spy = spyOn(obj, { getter: 'test' })
+  spy.willCall(() => 10)
+  expect(obj.test).toBe(10)
+  spy.restore()
+  expect(obj.test).toBe(42)
 })

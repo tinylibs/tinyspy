@@ -58,10 +58,10 @@ export function internalSpyOn<T, K extends string & keyof T>(
   let objDescriptor = getDescriptor(obj, accessName)
   let proto = Object.getPrototypeOf(obj)
   let protoDescriptor = proto && getDescriptor(proto, accessName)
-  let descriptor = objDescriptor || protoDescriptor
+  let originalDescriptor = objDescriptor || protoDescriptor
 
   assert(
-    descriptor || accessName in obj,
+    originalDescriptor || accessName in obj,
     `${String(accessName)} does not exist`
   )
 
@@ -70,19 +70,19 @@ export function internalSpyOn<T, K extends string & keyof T>(
   // vite ssr support - actual function is stored inside a getter
   if (
     accessType === 'value' &&
-    descriptor &&
-    !descriptor.value &&
-    descriptor.get
+    originalDescriptor &&
+    !originalDescriptor.value &&
+    originalDescriptor.get
   ) {
     accessType = 'get'
     ssr = true
-    mock = descriptor.get!()
+    mock = originalDescriptor.get!()
   }
 
   let origin: Procedure
 
-  if (descriptor) {
-    origin = descriptor[accessType]
+  if (originalDescriptor) {
+    origin = originalDescriptor[accessType]
   } else if (accessType !== 'value') {
     origin = () => obj[accessName as keyof T]
   } else {
@@ -93,7 +93,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
 
   let fn = createInternalSpy(mock)
   let reassign = (cb: any) => {
-    let { value, ...desc } = descriptor || {
+    let { value, ...desc } = originalDescriptor || {
       configurable: true,
       writable: true,
     }
@@ -103,7 +103,9 @@ export function internalSpyOn<T, K extends string & keyof T>(
     ;(desc as PropertyDescriptor)[accessType] = cb
     define(obj, accessName, desc)
   }
-  let restore = () => reassign(origin)
+  let restore = () => originalDescriptor
+    ? define(obj, accessName, originalDescriptor)
+    : reassign(origin)
   const state = fn[S]
   defineValue(state, 'restore', restore)
   defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
