@@ -13,6 +13,7 @@ let reset = (state: SpyInternalState) => {
   state.callCount = 0
   state.calls = []
   state.results = []
+  state.next = []
 }
 let defineState = (spy: SpyInternal) => {
   define(spy, S, { value: { reset: () => reset(spy[S]) } })
@@ -43,7 +44,7 @@ interface SpyInternalState<A extends any[] = any[], R = any> {
   results: ResultFn<R>[]
   reset(): void
   impl: ((...args: A) => R) | undefined
-  next: ResultFn<R> | null
+  next: ResultFn<R>[]
 }
 
 interface SpyInternalImplState<A extends any[] = any[], R = any>
@@ -80,10 +81,10 @@ export function createInternalSpy<A extends any[], R>(
     state.called = true
     state.callCount++
     state.calls.push(args)
-    if (state.next) {
-      let [type, result] = state.next
-      state.results.push(state.next)
-      state.next = null
+    const next = state.next.shift()
+    if (next) {
+      state.results.push(next)
+      const [type, result] = next
       if (type === 'ok') {
         return result
       }
@@ -146,11 +147,11 @@ export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
     define(spy, n, { get: () => I[n], set: (v) => (I[n] = v as never) })
   )
   defineValue(spy, 'nextError', (error: any) => {
-    I.next = ['error', error]
+    I.next.push(['error', error])
     return I
   })
   defineValue(spy, 'nextResult', (result: R) => {
-    I.next = ['ok', result]
+    I.next.push(['ok', result])
     return I
   })
 }
