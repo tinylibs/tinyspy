@@ -2,7 +2,7 @@ name: "size"
 on:
   pull_request:
     branches:
-      - main 
+      - main
 jobs:
   size:
     runs-on: ubuntu-latest
@@ -10,6 +10,10 @@ jobs:
       CI_JOB_NUMBER: 1
     steps:
       - uses: actions/checkout@v1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+
       - uses: andresz1/size-limit-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
