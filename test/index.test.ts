@@ -697,11 +697,23 @@ test('does not await on non-promise values that contain .then', async () => {
 
 test('.restore correctly restores primitive property', () => {
   const obj = {
-    test: 42
+    test: 42,
   }
   const spy = spyOn(obj, { getter: 'test' })
   spy.willCall(() => 10)
   expect(obj.test).toBe(10)
   spy.restore()
   expect(obj.test).toBe(42)
+})
+
+test('next in a row', () => {
+  const cb = spy()
+  cb.nextResult(1)
+  cb.nextResult(2)
+  cb.nextResult(3)
+
+  expect(cb()).toBe(1)
+  expect(cb()).toBe(2)
+  expect(cb()).toBe(3)
+  expect(cb()).toBe(undefined)
 })
