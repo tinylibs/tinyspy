@@ -26,8 +26,9 @@ describe('class mock', () => {
   })
 
   test('spy keeps instance', () => {
+    function Test() {}
     const obj = {
-      Test() {},
+      Test,
     }
     const fn = spyOn(obj, 'Test')
     const instance = new obj.Test()
@@ -35,8 +36,7 @@ describe('class mock', () => {
     expect(instance).toBeInstanceOf(obj.Test)
   })
 
-  // FIXME: https://github.com/tinylibs/tinyspy/issues/29
-  describe.todo('spying on constructor', () => {
+  describe('spying on constructor', () => {
     test('throws error, if constructor is an arrow function', () => {
       const fnArrow = spy(() => {})
       expect(() => new fnArrow()).toThrowError()

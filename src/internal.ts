@@ -96,7 +96,11 @@ export function createInternalSpy<A extends any[], R>(
     let type: 'ok' | 'error' = 'ok'
     if (state.impl) {
       try {
-        result = state.impl.apply(this, args)
+        if (new.target) {
+          result = Reflect.construct(state.impl, args, new.target)
+        } else {
+          result = state.impl.apply(this, args)
+        }
         type = 'ok'
       } catch (err: any) {
         result = err
