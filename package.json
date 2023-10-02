@@ -1,14 +1,15 @@
 {
   "name": "tinyspy",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "type": "module",
   "packageManager": "pnpm@8.4.0",
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
     "prepare": "husky install",
-    "release": "bumpp package.json --commit --push --tag && tsup && clean-publish",
-    "test": "vitest --no-threads"
+    "publish-test": "clean-publish --without-publish",
+    "release": "node ./tools/clean-banner.js && bumpp package.json --commit --push --tag && tsup && clean-publish && node ./tools/return-banner.js",
+    "test": "vitest --single-thread"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
