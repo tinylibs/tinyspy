@@ -45,7 +45,10 @@ export function internalSpyOn<T, K extends string & keyof T>(
     'cannot spyOn on a primitive value'
   )
 
-  let getMeta = (): [string | symbol | number, 'value' | 'get' | 'set'] => {
+  let [accessName, accessType] = ((): [
+    string | symbol | number,
+    'value' | 'get' | 'set'
+  ] => {
     if (!isType('object', methodName)) {
       return [methodName, 'value']
     }
@@ -59,9 +62,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
       return [methodName.setter, 'set']
     }
     throw new Error('specify getter or setter to spy on')
-  }
-
-  let [accessName, accessType] = getMeta()
+  })()
   let objDescriptor = getDescriptor(obj, accessName)
   let proto = Object.getPrototypeOf(obj)
   let protoDescriptor = proto && getDescriptor(proto, accessName)
