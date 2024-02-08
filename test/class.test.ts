@@ -25,8 +25,10 @@ describe('class mock', () => {
     expect(spy2.callCount).toBe(1)
   })
 
-  test('spy keeps instance', () => {
+  test('spy keeps instance on a function', () => {
     function Test() {}
+    const method = spy()
+    Test.prototype.run = method
     const obj = {
       Test,
     }
@@ -34,6 +36,38 @@ describe('class mock', () => {
     const instance = new obj.Test()
     expect(fn.called).toBe(true)
     expect(instance).toBeInstanceOf(obj.Test)
+    expect(instance.run).toBe(method)
+  })
+
+  test('spy keeps instance on a function getter', () => {
+    function Test() {}
+    const method = spy()
+    Test.prototype.run = method
+    const obj = {
+      get Test() {
+        return Test
+      },
+    }
+    const fn = spyOn(obj, 'Test')
+    const instance = new obj.Test()
+    expect(fn.called).toBe(true)
+    expect(instance).toBeInstanceOf(obj.Test)
+    expect(instance.run).toBe(method)
+  })
+
+  test('spy keeps instance on a class', () => {
+    const method = spy()
+    class Test {
+      run = method
+    }
+    const obj = {
+      Test,
+    }
+    const fn = spyOn(obj, 'Test')
+    const instance = new obj.Test()
+    expect(fn.called).toBe(true)
+    expect(instance).toBeInstanceOf(obj.Test)
+    expect(instance.run).toBe(method)
   })
 
   describe('spying on constructor', () => {

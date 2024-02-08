@@ -23,6 +23,13 @@ type Constructors<T> = {
 let getDescriptor = (obj: any, method: string | symbol | number) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
+let prototype = (fn: any, val: any) => {
+  if (val != null && typeof val === 'function' && val.prototype != null) {
+    // inherit prototype, keep original prototype chain
+    Object.setPrototypeOf(fn.prototype, val.prototype)
+  }
+}
+
 export function internalSpyOn<T, K extends string & keyof T>(
   obj: T,
   methodName: K | { getter: K } | { setter: K },
@@ -38,7 +45,10 @@ export function internalSpyOn<T, K extends string & keyof T>(
     'cannot spyOn on a primitive value'
   )
 
-  let getMeta = (): [string | symbol | number, 'value' | 'get' | 'set'] => {
+  let [accessName, accessType] = ((): [
+    string | symbol | number,
+    'value' | 'get' | 'set'
+  ] => {
     if (!isType('object', methodName)) {
       return [methodName, 'value']
     }
@@ -52,9 +62,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
       return [methodName.setter, 'set']
     }
     throw new Error('specify getter or setter to spy on')
-  }
-
-  let [accessName, accessType] = getMeta()
+  })()
   let objDescriptor = getDescriptor(obj, accessName)
   let proto = Object.getPrototypeOf(obj)
   let protoDescriptor = proto && getDescriptor(proto, accessName)
@@ -92,6 +100,9 @@ export function internalSpyOn<T, K extends string & keyof T>(
   if (!mock) mock = origin
 
   let fn = createInternalSpy(mock)
+  if (accessType === 'value') {
+    prototype(fn, origin)
+  }
   let reassign = (cb: any) => {
     let { value, ...desc } = originalDescriptor || {
       configurable: true,
@@ -103,9 +114,10 @@ export function internalSpyOn<T, K extends string & keyof T>(
     ;(desc as PropertyDescriptor)[accessType] = cb
     define(obj, accessName, desc)
   }
-  let restore = () => originalDescriptor
-    ? define(obj, accessName, originalDescriptor)
-    : reassign(origin)
+  let restore = () =>
+    originalDescriptor
+      ? define(obj, accessName, originalDescriptor)
+      : reassign(origin)
   const state = fn[S]
   defineValue(state, 'restore', restore)
   defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
@@ -114,7 +126,14 @@ export function internalSpyOn<T, K extends string & keyof T>(
     return fn
   })
 
-  reassign(ssr ? () => fn : fn)
+  reassign(
+    ssr
+      ? () => {
+          prototype(fn, mock)
+          return fn
+        }
+      : fn
+  )
 
   spies.add(fn as any)
   return fn as any
