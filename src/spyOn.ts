@@ -28,7 +28,6 @@ let prototype = (fn: any, val: any) => {
     // inherit prototype, keep original prototype chain
     Object.setPrototypeOf(fn.prototype, val.prototype)
   }
-  return val
 }
 
 export function internalSpyOn<T, K extends string & keyof T>(
