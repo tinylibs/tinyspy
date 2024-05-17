@@ -1,4 +1,3 @@
-
 # tinyspy
 
 > minimal fork of nanospy, with more features 🕵🏻‍♂️
@@ -60,7 +59,7 @@ console.log(spied.calls) // []
 console.log(spied.returns) // []
 ```
 
-If you have async implementation, you need to `await` the method to get awaited results (if you don't, you will get a `Promise` inside `results`):
+Since 3.0.0, tinyspy doesn't unwrap the Promise anymore, so you need to await it manually:
 
 ```js
 const spied = spy(async (n) => n + '!')
@@ -72,8 +71,13 @@ console.log(spied.returns) // [Promise<'a!'>]
 
 await promise
 
-console.log(spied.returns) // ['a!']
+console.log(spied.returns) // [Promise<'a!'>]
+
+console.log(await spied.returns[0]) // 'a!'
 ```
+
+> [!WARNING]
+> This also means the function that returned a Promise will always have result type `'ok'` even if the Promise rejected
 
 ### spyOn
 

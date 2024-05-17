@@ -1,4 +1,4 @@
-import { assert, define, defineValue, isPromise, isType } from './utils'
+import { assert, define, defineValue, isType } from './utils'
 import { S } from './constants'
 
 interface GetState {
