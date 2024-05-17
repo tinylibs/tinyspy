@@ -59,7 +59,7 @@ console.log(spied.calls) // []
 console.log(spied.returns) // []
 ```
 
-Since 3.0.0, tinyspy doesn't unwrap the Promise anymore, so you need to await it manually:
+Since 3.0, tinyspy doesn't unwrap the Promise in `returns` anymore, so you need to await it manually:
 
 ```js
 const spied = spy(async (n) => n + '!')
@@ -67,7 +67,7 @@ const spied = spy(async (n) => n + '!')
 const promise = spied('a')
 
 console.log(spied.called) // true
-console.log(spied.returns) // [Promise<'a!'>]
+console.log(spied.returns) // ['ok', Promise<'a!'>]
 
 await promise
 
@@ -78,6 +78,21 @@ console.log(await spied.returns[0]) // 'a!'
 
 > [!WARNING]
 > This also means the function that returned a Promise will always have result type `'ok'` even if the Promise rejected
+
+Tinyspy 3.0 still exposes resolved values on `resolves` property:
+
+```js
+const spied = spy(async (n) => n + '!')
+
+const promise = spied('a')
+
+console.log(spied.called) // true
+console.log(spied.resolves) // [] <- not resolved yet
+
+await promise
+
+console.log(spied.resolves) // ['ok', 'a!']
+```
 
 ### spyOn
 
