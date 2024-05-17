@@ -71,7 +71,7 @@ console.log(spied.returns) // ['ok', Promise<'a!'>]
 
 await promise
 
-console.log(spied.returns) // [Promise<'a!'>]
+console.log(spied.returns) // ['ok', Promise<'a!'>]
 
 console.log(await spied.returns[0]) // 'a!'
 ```
