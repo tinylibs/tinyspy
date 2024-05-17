@@ -13,6 +13,7 @@ let reset = (state: SpyInternalState) => {
   state.callCount = 0
   state.calls = []
   state.results = []
+  state.resolves = []
   state.next = []
 }
 let defineState = (spy: SpyInternal) => {
@@ -42,6 +43,7 @@ interface SpyInternalState<A extends any[] = any[], R = any> {
   callCount: number
   calls: A[]
   results: ResultFn<R>[]
+  resolves: R extends PromiseLike<infer V> ? ResultFn<V>[] : never
   reset(): void
   impl: ((...args: A) => R) | undefined
   next: ResultFn<R>[]
@@ -95,6 +97,7 @@ export function createInternalSpy<A extends any[], R>(
     // it can be undefined, if there is no mocking function
     let result: any
     let type: 'ok' | 'error' = 'ok'
+    const resultIndex = state.results.length
     if (state.impl) {
       try {
         if (new.target) {
@@ -112,18 +115,10 @@ export function createInternalSpy<A extends any[], R>(
     }
     let resultTuple: ResultFn<R> = [type, result]
     if (isPromise(result)) {
-      const newPromise = result
-        .then((r: any) => (resultTuple[1] = r))
-        .catch((e: any) => {
-          // @ts-expect-error TS for some reasons narrows down the type
-          resultTuple[0] = 'error'
-          resultTuple[1] = e
-          throw e
-        })
-      // we need to reassign it because if it fails, the suite will fail
-      // see `async error` test in `test/index.test.ts`
-      Object.assign(newPromise, result)
-      result = newPromise
+      result.then(
+        (r: any) => (state.resolves[resultIndex] = ['ok', r]),
+        (e: any) => (state.resolves[resultIndex] = ['error', e])
+      )
     }
     state.results.push(resultTuple)
     return result
@@ -147,7 +142,15 @@ export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
     get: () => I.results.map(([, r]) => r),
   })
   ;(
-    ['called', 'callCount', 'results', 'calls', 'reset', 'impl'] as const
+    [
+      'called',
+      'callCount',
+      'results',
+      'resolves',
+      'calls',
+      'reset',
+      'impl',
+    ] as const
   ).forEach((n) =>
     define(spy, n, { get: () => I[n], set: (v) => (I[n] = v as never) })
   )
