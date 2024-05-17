@@ -59,7 +59,7 @@ console.log(spied.calls) // []
 console.log(spied.returns) // []
 ```
 
-Since 3.0, tinyspy doesn't unwrap the Promise in `returns` anymore, so you need to await it manually:
+Since 3.0, tinyspy doesn't unwrap the Promise in `returns` and `results` anymore, so you need to await it manually:
 
 ```js
 const spied = spy(async (n) => n + '!')
@@ -67,13 +67,13 @@ const spied = spy(async (n) => n + '!')
 const promise = spied('a')
 
 console.log(spied.called) // true
-console.log(spied.returns) // ['ok', Promise<'a!'>]
+console.log(spied.results) // ['ok', Promise<'a!'>]
 
 await promise
 
-console.log(spied.returns) // ['ok', Promise<'a!'>]
+console.log(spied.results) // ['ok', Promise<'a!'>]
 
-console.log(await spied.returns[0]) // 'a!'
+console.log(await spied.results[0]) // 'a!'
 ```
 
 > [!WARNING]
