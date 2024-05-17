@@ -73,7 +73,7 @@ await promise
 
 console.log(spied.results) // ['ok', Promise<'a!'>]
 
-console.log(await spied.results[0]) // 'a!'
+console.log(await spied.returns[0]) // 'a!'
 ```
 
 > [!WARNING]
