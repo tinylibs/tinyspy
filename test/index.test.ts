@@ -471,7 +471,7 @@ test('async error', async () => {
   expect(caughtError?.message).toEqual('async error')
 })
 
-test.only('async order preserved', async () => {
+test('async order preserved', async () => {
   let resolvePromise1: () => void = null!
   const promise1 = new Promise<void>((resolve) => (resolvePromise1 = resolve))
   let resolvePromise2: () => void = null!
