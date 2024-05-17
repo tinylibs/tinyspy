@@ -115,6 +115,7 @@ export function createInternalSpy<A extends any[], R>(
       const newPromise = result
         .then((r: any) => (resultTuple[1] = r))
         .catch((e: any) => {
+          // @ts-expect-error TS for some reasons narrows down the type
           resultTuple[0] = 'error'
           resultTuple[1] = e
           throw e
