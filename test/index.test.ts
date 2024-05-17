@@ -434,10 +434,12 @@ test('async', async () => {
 
   expect(spy.called).toBe(true)
   expect(spy.results[0][1]).toBeInstanceOf(Promise)
+  expect(spy.results[0][1]).toBe(promise)
 
   const count = await promise
 
-  expect(spy.results).toEqual([['ok', 1]])
+  expect(spy.results).toEqual([['ok', promise]])
+  expect(spy.resolves).toEqual([['ok', 1]])
   expect(count).toBe(1)
 })
 
@@ -453,6 +455,7 @@ test('async error', async () => {
 
   expect(spy.called).toBe(true)
   expect(spy.results[0][1]).toBeInstanceOf(Promise)
+  expect(spy.results[0][1]).toBe(promise)
 
   let caughtError: null | Error = null
   try {
@@ -461,10 +464,45 @@ test('async error', async () => {
     caughtError = e
   }
 
-  expect(spy.results[0][0]).toEqual('error')
-  expect(spy.results[0][1].message).toEqual('async error')
+  expect(spy.results).toEqual([['ok', promise]])
+  expect(spy.resolves[0][0]).toEqual('error')
+  expect(spy.resolves[0][1].message).toEqual('async error')
   expect(caughtError).toBeInstanceOf(Error)
   expect(caughtError?.message).toEqual('async error')
+})
+
+test.only('async order preserved', async () => {
+  let resolvePromise1: () => void = null!
+  const promise1 = new Promise<void>((resolve) => (resolvePromise1 = resolve))
+  let resolvePromise2: () => void = null!
+  const promise2 = new Promise<void>((resolve) => (resolvePromise2 = resolve))
+  let calls = 0
+  const obj = {
+    async method(value: number) {
+      if (calls++ === 0) {
+        await promise1
+      } else {
+        await promise2
+      }
+      return value
+    },
+  }
+
+  const spy = spyOn(obj, 'method')
+  const promiseCall1 = obj.method(1)
+  const promiseCall2 = obj.method(2)
+
+  expect(spy.called).toBe(true)
+
+  resolvePromise2()
+  await promiseCall2
+  resolvePromise1()
+  await promiseCall1
+
+  expect(spy.resolves).toEqual([
+    ['ok', 1],
+    ['ok', 2],
+  ])
 })
 
 test('proto null', () => {
