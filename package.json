@@ -1,6 +1,6 @@
 {
   "name": "tinyspy",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "type": "module",
   "packageManager": "pnpm@9.1.1",
   "scripts": {
