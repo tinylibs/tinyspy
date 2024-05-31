@@ -8,7 +8,7 @@
     "build": "tsup",
     "prepare": "husky",
     "publish-test": "clean-publish --without-publish",
-    "release": "node ./tools/clean-banner.js && bumpp package.json --commit --push --tag && tsup && clean-publish && node ./tools/return-banner.js",
+    "release": "bumpp package.json --commit --push --tag && tsup && clean-publish",
     "test": "vitest --no-isolate"
   },
   "main": "./dist/index.cjs",
