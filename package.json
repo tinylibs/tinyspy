@@ -52,7 +52,7 @@
     "@size-limit/preset-small-lib": "^11.1.4",
     "@size-limit/time": "^11.1.4",
     "bumpp": "^9.4.1",
-    "changelogithub": "^0.13.7",
+    "changelogithub": "^0.13.10",
     "clean-publish": "^4.4.0",
     "happy-dom": "^14.11.0",
     "husky": "^9.0.11",
