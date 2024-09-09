@@ -116,23 +116,23 @@ export function internalSpyOn<T, K extends string & keyof T>(
 
   if (!mock) mock = origin
 
-  let fn: SpyInternal
-  if (origin && S in origin) {
-    fn = origin as SpyInternal
-  } else {
-    fn = createInternalSpy(mock)
-    if (accessType === 'value') {
-      prototype(fn, origin)
-    }
-
-    const state = fn[S]
-    defineValue(state, 'restore', restore)
-    defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
-    defineValue(state, 'willCall', (newCb: Procedure) => {
-      state.impl = newCb
-      return fn
-    })
+  // let fn: SpyInternal
+  // if (origin && S in origin) {
+  //   fn = origin as SpyInternal
+  // } else {
+  let fn = createInternalSpy(mock)
+  if (accessType === 'value') {
+    prototype(fn, origin)
   }
+
+  const state = fn[S]
+  defineValue(state, 'restore', restore)
+  defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
+  defineValue(state, 'willCall', (newCb: Procedure) => {
+    state.impl = newCb
+    return fn
+  })
+  // }
 
   reassign(
     ssr
