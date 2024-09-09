@@ -755,3 +755,23 @@ test('next in a row', () => {
   expect(cb()).toBe(3)
   expect(cb()).toBe(undefined)
 })
+
+test('spying twice and unspying restores original method', () => {
+  const obj = {
+    method: () => 1,
+  }
+  const spy1 = spyOn(obj, 'method').willCall(() => 2)
+  expect(obj.method()).toBe(2)
+
+  const spy2 = spyOn(obj, 'method')
+
+  expect(spy1).toBe(spy2)
+  expect(obj.method()).toBe(2)
+
+  spy2.willCall(() => 3)
+
+  expect(obj.method()).toBe(3)
+
+  spy2.restore()
+  expect(obj.method).not.toBe(spy1)
+})

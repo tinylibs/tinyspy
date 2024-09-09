@@ -3,6 +3,7 @@ import {
   populateSpy,
   spies,
   SpyImpl,
+  SpyInternal,
   SpyInternalImpl,
 } from './internal'
 import { assert, define, defineValue, isType } from './utils'
@@ -47,7 +48,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
 
   let [accessName, accessType] = ((): [
     string | symbol | number,
-    'value' | 'get' | 'set'
+    'value' | 'get' | 'set',
   ] => {
     if (!isType('object', methodName)) {
       return [methodName, 'value']
@@ -97,12 +98,6 @@ export function internalSpyOn<T, K extends string & keyof T>(
     origin = obj[accessName as keyof T] as unknown as Procedure
   }
 
-  if (!mock) mock = origin
-
-  let fn = createInternalSpy(mock)
-  if (accessType === 'value') {
-    prototype(fn, origin)
-  }
   let reassign = (cb: any) => {
     let { value, ...desc } = originalDescriptor || {
       configurable: true,
@@ -118,13 +113,26 @@ export function internalSpyOn<T, K extends string & keyof T>(
     originalDescriptor
       ? define(obj, accessName, originalDescriptor)
       : reassign(origin)
-  const state = fn[S]
-  defineValue(state, 'restore', restore)
-  defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
-  defineValue(state, 'willCall', (newCb: Procedure) => {
-    state.impl = newCb
-    return fn
-  })
+
+  if (!mock) mock = origin
+
+  let fn: SpyInternal
+  if (origin && S in origin) {
+    fn = origin as SpyInternal
+  } else {
+    fn = createInternalSpy(mock)
+    if (accessType === 'value') {
+      prototype(fn, origin)
+    }
+
+    const state = fn[S]
+    defineValue(state, 'restore', restore)
+    defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
+    defineValue(state, 'willCall', (newCb: Procedure) => {
+      state.impl = newCb
+      return fn
+    })
+  }
 
   reassign(
     ssr
