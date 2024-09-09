@@ -756,7 +756,7 @@ test('next in a row', () => {
   expect(cb()).toBe(undefined)
 })
 
-test.only('spying twice and unspying restores original method', () => {
+test('spying twice and unspying restores original method', () => {
   const obj = {
     method: () => 1,
   }
