@@ -138,6 +138,11 @@ export function createInternalSpy<A extends any[], R>(
 export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
   const I = getInternalState(spy)
 
+  // already populated
+  if ('returns' in spy) {
+    return
+  }
+
   define(spy, 'returns', {
     get: () => I.results.map(([, r]) => r),
   })
