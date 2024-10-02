@@ -108,4 +108,30 @@ describe('class mock', () => {
       expect(fnScoped.calls).toEqual([['some', 'text', 1]])
     })
   })
+
+  test('accepts classes as implementation', () => {
+    let constructed = false
+    const Mock = spy(
+      class _Mock {
+        constructor(public name: string) {
+          constructed = true
+        }
+      }
+    )
+    const result = new Mock('Max')
+
+    expect(result.name).toBe('Max')
+    expect(constructed).toBe(true)
+    expect(Mock.calls).toEqual([['Max']])
+
+    expect(Mock.results[0][0]).toBe('ok')
+    expect(Mock.results[0][1]).toBe(result)
+  })
+
+  test('fals if class is called without the new keyword', () => {
+    const Mock = spy(class _Mock {})
+    expect(() => Mock()).toThrowError(
+      "Class constructor _Mock cannot be invoked without 'new'"
+    )
+  })
 })
