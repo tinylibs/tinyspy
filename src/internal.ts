@@ -1,5 +1,5 @@
-import { assert, define, defineValue, isPromise, isType } from './utils'
-import { S } from './constants'
+import { assert, define, defineValue, isPromise, isType } from './utils.js'
+import { S } from './constants.js'
 
 interface GetState {
   <A extends any[], R>(spy: SpyInternalImpl<A, R>): SpyInternalImplState<A, R>

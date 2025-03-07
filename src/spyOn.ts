@@ -5,9 +5,9 @@ import {
   SpyImpl,
   SpyInternal,
   SpyInternalImpl,
-} from './internal'
-import { assert, define, defineValue, isType } from './utils'
-import { S } from './constants'
+} from './internal.js'
+import { assert, define, defineValue, isType } from './utils.js'
+import { S } from './constants.js'
 
 type Procedure = (...args: any[]) => any
 

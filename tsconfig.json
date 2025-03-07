@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "esnext",
     "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "noUncheckedIndexedAccess": true,
-    "baseUrl": "."
+    "outDir": "./dist"
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
