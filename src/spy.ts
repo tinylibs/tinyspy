@@ -1,4 +1,4 @@
-import { createInternalSpy, populateSpy, Spy } from './internal'
+import { createInternalSpy, populateSpy, Spy } from './internal.js'
 
 export interface SpyFn<A extends any[] = any[], R = any> extends Spy<A, R> {
   new (...args: A): R extends void ? any : R
