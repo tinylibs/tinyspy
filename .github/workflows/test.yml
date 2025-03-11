@@ -20,6 +20,8 @@ jobs:
         uses: pnpm/action-setup@v2
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Build
+        run: pnpm build
       - name: Run unit tests
         run: pnpm test
         env:
