@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 
-import { spyOn, spy, restoreAll } from '../src/index'
+import { spyOn, spy, restoreAll } from 'tinyspy'
 
 import { Window } from 'happy-dom'
 
