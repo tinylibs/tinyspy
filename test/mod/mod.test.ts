@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest'
-import { spyOn } from '../../src/index'
+import { spyOn } from 'tinyspy'
 import { foo } from './mod'
 import { other } from './other'
 

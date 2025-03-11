@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { spyOn, spy } from '../src'
+import { spyOn, spy } from 'tinyspy'
 
 class Dep {
   run(): boolean {
