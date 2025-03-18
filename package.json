@@ -35,11 +35,11 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "dev": "tsc --watch",
-    "build": "tsc",
+    "dev": "tsup --watch",
+    "build": "tsup",
     "prepare": "husky",
     "publish-test": "clean-publish --without-publish",
-    "release": "bumpp package.json --commit --push --tag && npm run build && clean-publish",
+    "release": "bumpp package.json --commit --push --tag && tsup && clean-publish",
     "test": "vitest --no-isolate"
   },
   "devDependencies": {
@@ -54,6 +54,7 @@
     "prettier": "^3.2.5",
     "size-limit": "^11.1.4",
     "tinyspy": "*",
+    "tsup": "^8.0.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.1",
     "vitest": "^1.6.0"
