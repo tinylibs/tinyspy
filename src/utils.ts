@@ -29,5 +29,5 @@ export function defineValue(
   key: string | number | symbol,
   value: unknown
 ) {
-  Object.defineProperty(obj, key, { value })
+  define(obj, key, { value })
 }

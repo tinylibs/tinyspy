@@ -36,7 +36,7 @@
   },
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "build": "tsup --minify-identifiers",
     "prepare": "husky",
     "publish-test": "clean-publish --without-publish",
     "release": "bumpp package.json --commit --push --tag && tsup && clean-publish",
@@ -57,6 +57,6 @@
     "tsup": "^8.0.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.1",
-    "vitest": "^1.6.0"
+    "vitest": "^3.1.1"
   }
 }

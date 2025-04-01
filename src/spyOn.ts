@@ -88,7 +88,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
     mock = originalDescriptor.get!()
   }
 
-  let origin: Procedure
+  let origin: Procedure | undefined
 
   if (originalDescriptor) {
     origin = originalDescriptor[accessType]
@@ -120,31 +120,50 @@ export function internalSpyOn<T, K extends string & keyof T>(
   // if (origin && S in origin) {
   //   fn = origin as SpyInternal
   // } else {
-  let fn = createInternalSpy(mock)
+  let spy = wrap(createInternalSpy(mock), mock)
   if (accessType === 'value') {
-    prototype(fn, origin)
+    prototype(spy, origin)
   }
 
-  const state = fn[S]
+  const state = spy[S]
   defineValue(state, 'restore', restore)
-  defineValue(state, 'getOriginal', () => (ssr ? origin() : origin))
+  defineValue(state, 'getOriginal', () => (ssr ? origin!() : origin))
   defineValue(state, 'willCall', (newCb: Procedure) => {
     state.impl = newCb
-    return fn
+    return spy
   })
   // }
 
   reassign(
     ssr
       ? () => {
-          prototype(fn, mock)
-          return fn
+          prototype(spy, mock)
+          return spy
         }
-      : fn
+      : spy
   )
 
-  spies.add(fn as any)
-  return fn as any
+  spies.add(spy as any)
+  return spy as any
+}
+
+const builtinDescriptors = Object.getOwnPropertyDescriptors(Function.prototype)
+
+function wrap(mock: SpyInternal, original: Procedure | undefined): SpyInternal {
+  if (!original) {
+    return mock
+  }
+
+  const originalStaticProperties = Object.getOwnPropertyDescriptors(original)
+
+  for (const key in originalStaticProperties) {
+    if (key in builtinDescriptors || key === 'prototype') {
+      continue
+    }
+    const descriptor = originalStaticProperties[key]!
+    Object.defineProperty(mock, key, descriptor)
+  }
+  return mock
 }
 
 // setters exist without getter, so we can check only getters

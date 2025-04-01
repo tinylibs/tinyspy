@@ -58,6 +58,7 @@ interface SpyInternalImplState<A extends any[] = any[], R = any>
 
 export interface Spy<A extends any[] = any[], R = any>
   extends SpyInternalState<A, R> {
+  (this: any, ...args: A): R
   returns: R[]
   length: number
   nextError(error: any): this

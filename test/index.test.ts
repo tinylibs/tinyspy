@@ -775,3 +775,28 @@ test.todo('spying twice and unspying restores original method', () => {
   spy2.restore()
   expect(obj.method).not.toBe(spy1)
 })
+
+test('spying copies properties from functions', () => {
+  function a() {}
+  a.HELLO_WORLD = true
+  const obj = {
+    a,
+  }
+  const spy = spyOn(obj, 'a')
+  expect(obj.a.HELLO_WORLD).toBe(true)
+  expect((spy as any).HELLO_WORLD).toBe(true)
+  expect(spy.name).toBe('a')
+})
+
+test('spying copies properties from classes', () => {
+  class A {
+    static HELLO_WORLD = true
+  }
+  const obj = {
+    A,
+  }
+  const spy = spyOn(obj, 'A')
+  expect(obj.A.HELLO_WORLD).toBe(true)
+  expect((spy as any).HELLO_WORLD).toBe(true)
+  expect(spy.name).toBe('A')
+})
