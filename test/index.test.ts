@@ -756,17 +756,17 @@ test('next in a row', () => {
   expect(cb()).toBe(undefined)
 })
 
-test.todo('spying twice and unspying restores original method', () => {
+test('spying twice and unspying restores original method', () => {
   const obj = {
     method: () => 1,
   }
+  const original = obj.method
   const spy1 = spyOn(obj, 'method').willCall(() => 2)
   expect(obj.method()).toBe(2)
 
   const spy2 = spyOn(obj, 'method')
 
-  expect(spy1).toBe(spy2)
-  expect(obj.method()).toBe(2)
+  expect(obj.method()).toBe(1)
 
   spy2.willCall(() => 3)
 
@@ -774,6 +774,7 @@ test.todo('spying twice and unspying restores original method', () => {
 
   spy2.restore()
   expect(obj.method).not.toBe(spy1)
+  expect(obj.method).toBe(original)
 })
 
 test('spying copies properties from functions', () => {
@@ -799,4 +800,18 @@ test('spying copies properties from classes', () => {
   expect(obj.A.HELLO_WORLD).toBe(true)
   expect((spy as any).HELLO_WORLD).toBe(true)
   expect(spy.name).toBe('A')
+})
+
+test("doesn't throw if already defined", () => {
+  const a = function a() {} as (() => void) & { HELLO_WORLD: boolean }
+  Object.defineProperty(a, 'HELLO_WORLD', {
+    // notice it cannot be redefined
+    configurable: false,
+    get: () => true,
+  })
+  const obj = { a }
+  spyOn(obj, 'a')
+  expect(obj.a.HELLO_WORLD).toBe(true)
+  spyOn(obj, 'a')
+  expect(obj.a.HELLO_WORLD).toBe(true)
 })

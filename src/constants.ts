@@ -1,1 +1,1 @@
-export const S = Symbol.for('tinyspy:spy')
+export const SYMBOL_STATE = Symbol.for('tinyspy:spy')

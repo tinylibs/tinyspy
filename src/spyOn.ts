@@ -1,13 +1,14 @@
 import {
   createInternalSpy,
+  isMockFunction,
   populateSpy,
   spies,
   SpyImpl,
   SpyInternal,
   SpyInternalImpl,
 } from './internal.js'
-import { assert, define, defineValue, isType } from './utils.js'
-import { S } from './constants.js'
+import { assert, define, defineValue, descriptors, isType } from './utils.js'
+import { SYMBOL_STATE } from './constants.js'
 
 type Procedure = (...args: any[]) => any
 
@@ -24,7 +25,7 @@ type Constructors<T> = {
 let getDescriptor = (obj: any, method: string | symbol | number) =>
   Object.getOwnPropertyDescriptor(obj, method)
 
-let prototype = (fn: any, val: any) => {
+let setPototype = (fn: any, val: any) => {
   if (val != null && typeof val === 'function' && val.prototype != null) {
     // inherit prototype, keep original prototype chain
     Object.setPrototypeOf(fn.prototype, val.prototype)
@@ -88,14 +89,18 @@ export function internalSpyOn<T, K extends string & keyof T>(
     mock = originalDescriptor.get!()
   }
 
-  let origin: Procedure | undefined
+  let original: Procedure | undefined
 
   if (originalDescriptor) {
-    origin = originalDescriptor[accessType]
+    original = originalDescriptor[accessType]
   } else if (accessType !== 'value') {
-    origin = () => obj[accessName as keyof T]
+    original = () => obj[accessName as keyof T]
   } else {
-    origin = obj[accessName as keyof T] as unknown as Procedure
+    original = obj[accessName as keyof T] as unknown as Procedure
+  }
+
+  if (original && isSpyFunction(original)) {
+    original = original[SYMBOL_STATE].getOriginal()
   }
 
   let reassign = (cb: any) => {
@@ -110,11 +115,11 @@ export function internalSpyOn<T, K extends string & keyof T>(
     define(obj, accessName, desc)
   }
   let restore = () =>
-    originalDescriptor
+    originalDescriptor && !original
       ? define(obj, accessName, originalDescriptor)
-      : reassign(origin)
+      : reassign(original)
 
-  if (!mock) mock = origin
+  if (!mock) mock = original
 
   // let fn: SpyInternal
   // if (origin && S in origin) {
@@ -122,12 +127,12 @@ export function internalSpyOn<T, K extends string & keyof T>(
   // } else {
   let spy = wrap(createInternalSpy(mock), mock)
   if (accessType === 'value') {
-    prototype(spy, origin)
+    setPototype(spy, original)
   }
 
-  const state = spy[S]
+  const state = spy[SYMBOL_STATE]
   defineValue(state, 'restore', restore)
-  defineValue(state, 'getOriginal', () => (ssr ? origin!() : origin))
+  defineValue(state, 'getOriginal', () => (ssr ? original!() : original))
   defineValue(state, 'willCall', (newCb: Procedure) => {
     state.impl = newCb
     return spy
@@ -137,7 +142,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
   reassign(
     ssr
       ? () => {
-          prototype(spy, mock)
+          setPototype(spy, mock)
           return spy
         }
       : spy
@@ -147,21 +152,34 @@ export function internalSpyOn<T, K extends string & keyof T>(
   return spy as any
 }
 
-const builtinDescriptors = Object.getOwnPropertyDescriptors(Function.prototype)
+const builtinDescriptors = descriptors(Function.prototype)
 
 function wrap(mock: SpyInternal, original: Procedure | undefined): SpyInternal {
-  if (!original) {
+  if (
+    !original ||
+    // the original is already a spy, so it has all the properties
+    SYMBOL_STATE in original
+  ) {
     return mock
   }
 
-  const originalStaticProperties = Object.getOwnPropertyDescriptors(original)
+  const originalStaticDescriptors = descriptors(original)
+  const propertyNames = [
+    ...Object.getOwnPropertyNames(original),
+    ...Object.getOwnPropertySymbols(original),
+  ] as (keyof typeof original)[]
 
-  for (const key in originalStaticProperties) {
+  for (const key of propertyNames) {
     if (key in builtinDescriptors || key === 'prototype') {
       continue
     }
-    const descriptor = originalStaticProperties[key]!
-    Object.defineProperty(mock, key, descriptor)
+    const descriptor = originalStaticDescriptors[key]!
+    const mockDescriptor = Object.getOwnPropertyDescriptor(mock, key)
+    if (mockDescriptor) {
+      continue
+    }
+
+    define(mock, key, descriptor)
   }
   return mock
 }
@@ -196,7 +214,11 @@ export function spyOn<T extends object, K extends string & keyof T>(
   const spy = internalSpyOn(obj, methodName, mock)
   populateSpy(spy)
   ;(['restore', 'getOriginal', 'willCall'] as const).forEach((method) => {
-    defineValue(spy, method, spy[S][method])
+    defineValue(spy, method, spy[SYMBOL_STATE][method])
   })
   return spy as any as SpyImpl
+}
+
+function isSpyFunction(obj: any): obj is SpyInternalImpl {
+  return isMockFunction(obj) && 'getOriginal' in obj[SYMBOL_STATE]
 }
