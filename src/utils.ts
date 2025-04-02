@@ -31,3 +31,7 @@ export function defineValue(
 ) {
   define(obj, key, { value })
 }
+
+export function descriptors(obj: any) {
+  return Object.getOwnPropertyDescriptors(obj)
+}

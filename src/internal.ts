@@ -1,5 +1,5 @@
 import { assert, define, defineValue, isPromise, isType } from './utils.js'
-import { S } from './constants.js'
+import { SYMBOL_STATE } from './constants.js'
 
 interface GetState {
   <A extends any[], R>(spy: SpyInternalImpl<A, R>): SpyInternalImplState<A, R>
@@ -17,11 +17,13 @@ let reset = (state: SpyInternalState) => {
   state.next = []
 }
 let defineState = (spy: SpyInternal) => {
-  define(spy, S, { value: { reset: () => reset(spy[S]) } })
-  return spy[S]
+  define(spy, SYMBOL_STATE, {
+    value: { reset: () => reset(spy[SYMBOL_STATE]) },
+  })
+  return spy[SYMBOL_STATE]
 }
 export let getInternalState: GetState = (spy) => {
-  return (spy[S] || defineState(spy)) as any
+  return (spy[SYMBOL_STATE] || defineState(spy)) as any
 }
 
 type ReturnError = ['error', any]
@@ -30,12 +32,12 @@ type ResultFn<R> = ReturnError | ReturnOk<R>
 
 export interface SpyInternal<A extends any[] = any[], R = any> {
   (this: any, ...args: A): R
-  [S]: SpyInternalState<A, R>
+  [SYMBOL_STATE]: SpyInternalState<A, R>
 }
 
 export interface SpyInternalImpl<A extends any[] = any[], R = any>
   extends SpyInternal<A, R> {
-  [S]: SpyInternalImplState<A, R>
+  [SYMBOL_STATE]: SpyInternalImplState<A, R>
 }
 
 interface SpyInternalState<A extends any[] = any[], R = any> {
@@ -129,15 +131,19 @@ export function createInternalSpy<A extends any[], R>(
   defineValue(fn, 'length', cb ? cb.length : 0)
   defineValue(fn, 'name', cb ? cb.name || 'spy' : 'spy')
 
-  const I = getInternalState(fn)
-  I.reset()
-  I.impl = cb as any
+  const state = getInternalState(fn)
+  state.reset()
+  state.impl = cb as any
 
   return fn
 }
 
+export function isMockFunction(obj: any): obj is SpyInternal {
+  return !!obj && obj._isMockFunction === true
+}
+
 export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
-  const I = getInternalState(spy)
+  const state = getInternalState(spy)
 
   // already populated
   if ('returns' in spy) {
@@ -145,7 +151,7 @@ export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
   }
 
   define(spy, 'returns', {
-    get: () => I.results.map(([, r]) => r),
+    get: () => state.results.map(([, r]) => r),
   })
   ;(
     [
@@ -158,14 +164,14 @@ export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
       'impl',
     ] as const
   ).forEach((n) =>
-    define(spy, n, { get: () => I[n], set: (v) => (I[n] = v as never) })
+    define(spy, n, { get: () => state[n], set: (v) => (state[n] = v as never) })
   )
   defineValue(spy, 'nextError', (error: any) => {
-    I.next.push(['error', error])
-    return I
+    state.next.push(['error', error])
+    return state
   })
   defineValue(spy, 'nextResult', (result: R) => {
-    I.next.push(['ok', result])
-    return I
+    state.next.push(['ok', result])
+    return state
   })
 }
