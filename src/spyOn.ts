@@ -174,7 +174,7 @@ function wrap(mock: SpyInternal, original: Procedure | undefined): SpyInternal {
       continue
     }
     const descriptor = originalStaticDescriptors[key]!
-    const mockDescriptor = Object.getOwnPropertyDescriptor(mock, key)
+    const mockDescriptor = getDescriptor(mock, key)
     if (mockDescriptor) {
       continue
     }
