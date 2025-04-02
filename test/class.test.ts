@@ -134,4 +134,22 @@ describe('class mock', () => {
       "Class constructor _Mock cannot be invoked without 'new'"
     )
   })
+
+  test('mocks inherited methods', () => {
+    class Bar {
+      _bar = 'bar'
+      get bar(): string {
+        return this._bar
+      }
+      set bar(bar: string) {
+        this._bar = bar
+      }
+    }
+    class Foo extends Bar {}
+    const foo = new Foo()
+    spyOn(foo, { getter: 'bar' }, () => 'foo')
+    expect(foo.bar).toEqual('foo')
+    foo.bar = 'baz'
+    expect(foo.bar).toEqual('foo')
+  })
 })
