@@ -152,7 +152,39 @@ export function internalSpyOn<T, K extends string & keyof T>(
   return spy as any
 }
 
-const builtinDescriptors = descriptors(Function.prototype)
+const ignoreProperties = new Set<string | symbol>([
+  'length',
+  'name',
+  'prototype',
+])
+
+function getAllProperties(original: Procedure) {
+  const properties = new Set<string | symbol>()
+  const descriptors: Record<string | symbol, PropertyDescriptor | undefined> =
+    {}
+  while (
+    original &&
+    original !== Object.prototype &&
+    original !== Function.prototype
+  ) {
+    const ownProperties = [
+      ...Object.getOwnPropertyNames(original),
+      ...Object.getOwnPropertySymbols(original),
+    ]
+    for (const prop of ownProperties) {
+      if (descriptors[prop] || ignoreProperties.has(prop)) {
+        continue
+      }
+      properties.add(prop)
+      descriptors[prop] = Object.getOwnPropertyDescriptor(original, prop)
+    }
+    original = Object.getPrototypeOf(original)
+  }
+  return {
+    properties,
+    descriptors,
+  }
+}
 
 function wrap(mock: SpyInternal, original: Procedure | undefined): SpyInternal {
   if (
@@ -163,17 +195,10 @@ function wrap(mock: SpyInternal, original: Procedure | undefined): SpyInternal {
     return mock
   }
 
-  const originalStaticDescriptors = descriptors(original)
-  const propertyNames = [
-    ...Object.getOwnPropertyNames(original),
-    ...Object.getOwnPropertySymbols(original),
-  ] as (keyof typeof original)[]
+  const { properties, descriptors } = getAllProperties(original)
 
-  for (const key of propertyNames) {
-    if (key in builtinDescriptors || key === 'prototype') {
-      continue
-    }
-    const descriptor = originalStaticDescriptors[key]!
+  for (const key of properties) {
+    const descriptor = descriptors[key]!
     const mockDescriptor = getDescriptor(mock, key)
     if (mockDescriptor) {
       continue

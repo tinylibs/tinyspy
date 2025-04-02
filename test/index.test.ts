@@ -802,6 +802,20 @@ test('spying copies properties from classes', () => {
   expect(spy.name).toBe('A')
 })
 
+test('spying copies properties from inheritedt classes', () => {
+  class P {
+    static HELLO_WORLD = true
+  }
+  class A extends P {}
+  const obj = {
+    A,
+  }
+  const spy = spyOn(obj, 'A')
+  expect(obj.A.HELLO_WORLD).toBe(true)
+  expect((spy as any).HELLO_WORLD).toBe(true)
+  expect(spy.name).toBe('A')
+})
+
 test("doesn't throw if already defined", () => {
   const a = function a() {} as (() => void) & { HELLO_WORLD: boolean }
   Object.defineProperty(a, 'HELLO_WORLD', {
