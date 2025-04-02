@@ -21,8 +21,18 @@ type Constructors<T> = {
   [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never
 }[keyof T]
 
-let getDescriptor = (obj: any, method: string | symbol | number) =>
-  Object.getOwnPropertyDescriptor(obj, method)
+let getDescriptor = (obj: any, method: string | symbol | number) => {
+  let objDescriptor = Object.getOwnPropertyDescriptor(obj, method)
+  let currentProto = Object.getPrototypeOf(obj)
+  while (currentProto !== null) {
+    const descriptor = Object.getOwnPropertyDescriptor(currentProto, method)
+    if (descriptor) {
+      return descriptor
+    }
+    currentProto = Object.getPrototypeOf(currentProto)
+  }
+  return objDescriptor
+}
 
 let prototype = (fn: any, val: any) => {
   if (val != null && typeof val === 'function' && val.prototype != null) {
@@ -64,10 +74,7 @@ export function internalSpyOn<T, K extends string & keyof T>(
     }
     throw new Error('specify getter or setter to spy on')
   })()
-  let objDescriptor = getDescriptor(obj, accessName)
-  let proto = Object.getPrototypeOf(obj)
-  let protoDescriptor = proto && getDescriptor(proto, accessName)
-  let originalDescriptor = objDescriptor || protoDescriptor
+  let originalDescriptor = getDescriptor(obj, accessName)
 
   assert(
     originalDescriptor || accessName in obj,
