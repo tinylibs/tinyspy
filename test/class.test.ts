@@ -149,7 +149,36 @@ describe('class mock', () => {
     const foo = new Foo()
     spyOn(foo, { getter: 'bar' }, () => 'foo')
     expect(foo.bar).toEqual('foo')
-    foo.bar = 'baz'
+    // foo.bar setter is inherited from Bar, so we can set it
+    expect(() => {
+      foo.bar = 'baz'
+    }).not.toThrowError()
+    expect(foo.bar).toEqual('foo')
+  })
+
+  test('mocks inherited overridden methods', () => {
+    class Bar {
+      _bar = 'bar'
+      get bar(): string {
+        return this._bar
+      }
+      set bar(bar: string) {
+        this._bar = bar
+      }
+    }
+    class Foo extends Bar {
+      get bar(): string {
+        return `${super.bar}-foo`
+      }
+    }
+    const foo = new Foo()
+    expect(foo.bar).toEqual('bar-foo')
+    spyOn(foo, { getter: 'bar' }, () => 'foo')
+    expect(foo.bar).toEqual('foo')
+    // foo.bar setter is not inherited from Bar
+    expect(() => {
+      foo.bar = 'baz'
+    }).toThrowError()
     expect(foo.bar).toEqual('foo')
   })
 })

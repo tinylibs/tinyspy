@@ -23,6 +23,9 @@ type Constructors<T> = {
 
 let getDescriptor = (obj: any, method: string | symbol | number) => {
   let objDescriptor = Object.getOwnPropertyDescriptor(obj, method)
+  if (objDescriptor) {
+    return objDescriptor
+  }
   let currentProto = Object.getPrototypeOf(obj)
   while (currentProto !== null) {
     const descriptor = Object.getOwnPropertyDescriptor(currentProto, method)
@@ -31,7 +34,6 @@ let getDescriptor = (obj: any, method: string | symbol | number) => {
     }
     currentProto = Object.getPrototypeOf(currentProto)
   }
-  return objDescriptor
 }
 
 let prototype = (fn: any, val: any) => {
