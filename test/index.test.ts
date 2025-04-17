@@ -829,3 +829,34 @@ test("doesn't throw if already defined", () => {
   spyOn(obj, 'a')
   expect(obj.a.HELLO_WORLD).toBe(true)
 })
+
+test('restore correctly restores the descriptor when inherited', () => {
+  class Foo {
+    f() {
+      return 'original'
+    }
+  }
+
+  const foo = new Foo()
+  expect(foo.f()).toMatchInlineSnapshot(`"original"`)
+  expect(Object.getOwnPropertyDescriptors(foo)).toMatchInlineSnapshot(`{}`)
+
+  const spy = spyOn(foo, 'f').willCall(() => 'mocked')
+  ;(spy as any)._isMockFunction = false
+  expect(Object.getOwnPropertyDescriptors(foo)).toMatchInlineSnapshot(`
+    {
+      "f": {
+        "configurable": true,
+        "enumerable": false,
+        "value": [Function],
+        "writable": true,
+      },
+    }
+  `)
+  expect(foo.f()).toMatchInlineSnapshot(`"mocked"`)
+
+  spy.restore()
+
+  expect(foo.f()).toMatchInlineSnapshot(`"original"`)
+  expect(Object.getOwnPropertyDescriptors(foo)).toMatchInlineSnapshot(`{}`)
+})

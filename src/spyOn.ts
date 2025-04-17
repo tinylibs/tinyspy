@@ -22,16 +22,19 @@ type Constructors<T> = {
   [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never
 }[keyof T]
 
-let getDescriptor = (obj: any, method: string | symbol | number) => {
+let getDescriptor = (
+  obj: any,
+  method: string | symbol | number
+): [any, PropertyDescriptor] | undefined => {
   let objDescriptor = Object.getOwnPropertyDescriptor(obj, method)
   if (objDescriptor) {
-    return objDescriptor
+    return [obj, objDescriptor]
   }
   let currentProto = Object.getPrototypeOf(obj)
   while (currentProto !== null) {
     const descriptor = Object.getOwnPropertyDescriptor(currentProto, method)
     if (descriptor) {
-      return descriptor
+      return [currentProto, descriptor]
     }
     currentProto = Object.getPrototypeOf(currentProto)
   }
@@ -77,7 +80,8 @@ export function internalSpyOn<T, K extends string & keyof T>(
     }
     throw new Error('specify getter or setter to spy on')
   })()
-  let originalDescriptor = getDescriptor(obj, accessName)
+  let [originalDescriptorObject, originalDescriptor] =
+    getDescriptor(obj, accessName) || []
 
   assert(
     originalDescriptor || accessName in obj,
@@ -123,10 +127,17 @@ export function internalSpyOn<T, K extends string & keyof T>(
     ;(desc as PropertyDescriptor)[accessType] = cb
     define(obj, accessName, desc)
   }
-  let restore = () =>
-    originalDescriptor && !original
-      ? define(obj, accessName, originalDescriptor)
-      : reassign(original)
+  let restore = () => {
+    // if method is defined on the prototype, we can just remove it from
+    // the current object instead of redefining a copy of it
+    if (originalDescriptorObject !== obj) {
+      Reflect.deleteProperty(obj, accessName)
+    } else if (originalDescriptor && !original) {
+      define(obj, accessName, originalDescriptor)
+    } else {
+      reassign(original)
+    }
+  }
 
   if (!mock) mock = original
 

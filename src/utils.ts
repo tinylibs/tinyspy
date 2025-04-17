@@ -29,7 +29,7 @@ export function defineValue(
   key: string | number | symbol,
   value: unknown
 ) {
-  define(obj, key, { value })
+  define(obj, key, { value, configurable: true, writable: true })
 }
 
 export function descriptors(obj: any) {
