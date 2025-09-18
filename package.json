@@ -1,7 +1,7 @@
 {
   "name": "tinyspy",
   "type": "module",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "packageManager": "pnpm@9.1.1",
   "description": "A minimal fork of nanospy, with more features",
   "license": "MIT",
