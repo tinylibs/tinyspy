@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  id-token: write # provenance require write access to id-token
+
 jobs:
   publish:
     if: github.repository == 'tinylibs/tinyspy'
