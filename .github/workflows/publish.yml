@@ -6,6 +6,7 @@ on:
       - 'v*'
 
 permissions:
+  contents: write # changelogithub requires contents permission
   id-token: write # provenance require write access to id-token
 
 jobs:
