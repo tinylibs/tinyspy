@@ -38,8 +38,9 @@
     "dev": "tsup --watch",
     "build": "tsup --minify-identifiers",
     "prepare": "husky",
+    "clean-publish": "clean-publish",
     "publish-test": "clean-publish --without-publish",
-    "release": "bumpp package.json --commit --push --tag && tsup && clean-publish",
+    "release": "bumpp package.json --commit --push --tag",
     "test": "vitest --no-isolate"
   },
   "devDependencies": {
