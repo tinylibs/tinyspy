@@ -9,7 +9,7 @@ jobs:
   publish:
     if: github.repository == 'tinylibs/tinyspy'
     runs-on: ubuntu-latest
-    environment: Release
+    environment: deploy
     steps:
       - uses: actions/checkout@v5
         with:
