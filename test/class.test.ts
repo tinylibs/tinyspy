@@ -128,7 +128,7 @@ describe('class mock', () => {
     expect(Mock.results[0][1]).toBe(result)
   })
 
-  test('fals if class is called without the new keyword', () => {
+  test('fails if class is called without the new keyword', () => {
     const Mock = spy(class _Mock {})
     expect(() => Mock()).toThrowError(
       "Class constructor _Mock cannot be invoked without 'new'"
