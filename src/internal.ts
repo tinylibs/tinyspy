@@ -68,6 +68,7 @@ export interface Spy<A extends any[] = any[], R = any>
 }
 
 export interface SpyImpl<A extends any[] = any[], R = any> extends Spy<A, R> {
+  [Symbol.dispose](): void
   getOriginal(): (...args: A) => R
   willCall(cb: (...args: A) => R): this
   restore(): void

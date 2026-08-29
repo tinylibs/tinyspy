@@ -261,6 +261,9 @@ export function spyOn<T extends object, K extends string & keyof T>(
   ;(['restore', 'getOriginal', 'willCall'] as const).forEach((method) => {
     defineValue(spy, method, spy[SYMBOL_STATE][method])
   })
+  if (Symbol.dispose) {
+    defineValue(spy, Symbol.dispose, spy[SYMBOL_STATE].restore)
+  }
   return spy as any as SpyImpl
 }
 

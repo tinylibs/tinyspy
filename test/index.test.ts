@@ -82,6 +82,39 @@ test('can spy on method', () => {
   expect(method.results).toEqual([ok('a!'), ok('b!'), ok('C!'), error(err)])
 })
 
+test('restores mock on leaving a using scope', () => {
+  const obj = {
+    method: () => 'original',
+  }
+  const original = obj.method
+
+  {
+    using method = spyOn(obj, 'method').willCall(() => 'mocked')
+
+    expect(obj.method()).toBe('mocked')
+    expect(method.called).toBe(true)
+  }
+
+  expect(obj.method).toBe(original)
+})
+
+test('restores mock when a using scope throws', () => {
+  const obj = {
+    method: () => 'original',
+  }
+  const original = obj.method
+
+  expect(() => {
+    using method = spyOn(obj, 'method').willCall(() => 'mocked')
+
+    expect(obj.method()).toBe('mocked')
+    expect(method.called).toBe(true)
+    throw new Error('test')
+  }).toThrowError('test')
+
+  expect(obj.method).toBe(original)
+})
+
 test('resets all spies', () => {
   let one = {
     method(arg: string) {
