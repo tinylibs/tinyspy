@@ -29,7 +29,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "optional-types.d.ts"
   ],
   "engines": {
     "node": ">=14.0.0"

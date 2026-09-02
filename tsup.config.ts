@@ -2,6 +2,7 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entryPoints: ['src/index.ts'],
+  external: ['../optional-types.js'],
   outDir: 'dist',
   format: ['esm'],
   tsconfig: './tsconfig.json',
