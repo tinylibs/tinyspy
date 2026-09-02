@@ -1,6 +1,13 @@
 import { assert, define, defineValue, isPromise, isType } from './utils.js'
 import { SYMBOL_STATE } from './constants.js'
 
+// Support consumers whose standard library predates explicit resource management.
+declare global {
+  interface SymbolConstructor {
+    readonly dispose: unique symbol
+  }
+}
+
 interface GetState {
   <A extends any[], R>(spy: SpyInternalImpl<A, R>): SpyInternalImplState<A, R>
   <A extends any[], R>(spy: SpyInternal<A, R>): SpyInternalState<A, R>
