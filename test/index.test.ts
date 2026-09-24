@@ -789,6 +789,23 @@ test('next in a row', () => {
   expect(cb()).toBe(undefined)
 })
 
+test('nextResult and nextError return the spy, so they chain', () => {
+  const cb = spy()
+  const err = new Error('test')
+
+  expect(cb.nextResult(1)).toBe(cb)
+  expect(cb.nextError(err)).toBe(cb)
+
+  cb.nextResult(2).nextError(err).nextResult(3)
+
+  expect(cb()).toBe(1)
+  expect(cb).toThrowError(err.message)
+  expect(cb()).toBe(2)
+  expect(cb).toThrowError(err.message)
+  expect(cb()).toBe(3)
+  expect(cb()).toBe(undefined)
+})
+
 test('spying twice and unspying restores original method', () => {
   const obj = {
     method: () => 1,
