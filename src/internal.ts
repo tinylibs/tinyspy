@@ -171,10 +171,10 @@ export function populateSpy<A extends any[], R>(spy: SpyInternal<A, R>) {
   )
   defineValue(spy, 'nextError', (error: any) => {
     state.next.push(['error', error])
-    return state
+    return spy
   })
   defineValue(spy, 'nextResult', (result: R) => {
     state.next.push(['ok', result])
-    return state
+    return spy
   })
 }
