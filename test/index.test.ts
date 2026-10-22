@@ -504,6 +504,22 @@ test('async error', async () => {
   expect(caughtError?.message).toEqual('async error')
 })
 
+test('nextResult records promise resolution in resolves', async () => {
+  const fn = spy()
+  fn.nextResult(Promise.resolve(42))
+  fn.nextResult(Promise.reject(new Error('async err')))
+
+  const p1 = fn()
+  const p2 = fn().catch((err) => err)
+
+  await p1
+  await p2
+
+  expect(fn.resolves[0]).toEqual(['ok', 42])
+  expect(fn.resolves[1][0]).toEqual('error')
+  expect(fn.resolves[1][1].message).toEqual('async err')
+})
+
 test('async order preserved', async () => {
   let resolvePromise1: () => void = null!
   const promise1 = new Promise<void>((resolve) => (resolvePromise1 = resolve))

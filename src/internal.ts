@@ -91,8 +91,15 @@ export function createInternalSpy<A extends any[], R>(
     state.calls.push(args)
     const next = state.next.shift()
     if (next) {
+      const resultIndex = state.results.length
       state.results.push(next)
       const [type, result] = next
+      if (isPromise(result)) {
+        result.then(
+          (r: any) => (state.resolves[resultIndex] = ['ok', r]),
+          (e: any) => (state.resolves[resultIndex] = ['error', e])
+        )
+      }
       if (type === 'ok') {
         return result
       }
